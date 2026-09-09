@@ -16,8 +16,8 @@ use subler_linux::{
     language,
     media::{self, AudioMode, Document, ExportEvent, Track},
     metadata::{
-        Artwork, Client as MetadataClient, MediaKind, MetadataResult, Provider, SearchHit,
-        SearchQuery,
+        Artwork, ArtworkCandidate, Client as MetadataClient, MediaKind, MetadataResult, Provider,
+        SearchHit, SearchQuery,
     },
 };
 
@@ -61,6 +61,12 @@ fn margins(w: &impl IsA<gtk::Widget>, n: i32) {
     w.set_margin_end(n);
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum ImportMode {
+    MetadataAndArtwork,
+    ArtworkOnly,
+}
+
 struct MetadataBrowser {
     window: gtk::Window,
     owner: std::rc::Weak<Ui>,
@@ -76,16 +82,24 @@ struct MetadataBrowser {
     results: gtk::ListBox,
     status: gtk::Label,
     spinner: gtk::Spinner,
+    mode: ImportMode,
     hits: RefCell<Vec<SearchHit>>,
+    artwork_choices: RefCell<Vec<ArtworkCandidate>>,
+    resolved: RefCell<Option<MetadataResult>>,
     query: RefCell<Option<SearchQuery>>,
     selected: Cell<Option<usize>>,
     busy: Cell<bool>,
 }
 
 impl MetadataBrowser {
-    fn new(owner: &Rc<Ui>) -> Rc<Self> {
+    fn new(owner: &Rc<Ui>, mode: ImportMode) -> Rc<Self> {
+        let artwork_only = mode == ImportMode::ArtworkOnly;
         let window = gtk::Window::builder()
-            .title("Importa metadati")
+            .title(if artwork_only {
+                "Cambia locandina"
+            } else {
+                "Importa metadati"
+            })
             .transient_for(&owner.window)
             .modal(true)
             .default_width(760)
@@ -94,7 +108,11 @@ impl MetadataBrowser {
         let root = gtk::Box::new(gtk::Orientation::Vertical, 14);
         margins(&root, 20);
         root.append(&label(
-            "Cerca film e serie nei provider di Subler",
+            if artwork_only {
+                "Cerca una nuova locandina senza modificare i metadati"
+            } else {
+                "Cerca film e serie nei provider di Subler"
+            },
             "section-title",
         ));
         let form = gtk::Grid::builder()
@@ -214,7 +232,11 @@ impl MetadataBrowser {
         let footer = gtk::Box::new(gtk::Orientation::Horizontal, 8);
         footer.set_halign(gtk::Align::End);
         let cancel = gtk::Button::with_label("Chiudi");
-        let import = gtk::Button::with_label("Importa metadati e locandina");
+        let import = gtk::Button::with_label(if artwork_only {
+            "Mostra locandine"
+        } else {
+            "Continua"
+        });
         import.add_css_class("suggested-action");
         import.set_sensitive(false);
         footer.append(&cancel);
@@ -236,7 +258,10 @@ impl MetadataBrowser {
             results,
             status,
             spinner,
+            mode,
             hits: RefCell::new(Vec::new()),
+            artwork_choices: RefCell::new(Vec::new()),
+            resolved: RefCell::new(None),
             query: RefCell::new(None),
             selected: Cell::new(None),
             busy: Cell::new(false),
@@ -309,6 +334,22 @@ impl MetadataBrowser {
         }
     }
 
+    fn initial_action_label(&self) -> &'static str {
+        if self.mode == ImportMode::ArtworkOnly {
+            "Mostra locandine"
+        } else {
+            "Continua"
+        }
+    }
+
+    fn artwork_action_label(&self) -> &'static str {
+        if self.mode == ImportMode::ArtworkOnly {
+            "Imposta locandina"
+        } else {
+            "Importa metadati e locandina"
+        }
+    }
+
     fn optional_number(entry: &gtk::Entry, name: &str) -> Result<Option<u32>> {
         let text = entry.text();
         let text = text.trim();
@@ -357,6 +398,9 @@ impl MetadataBrowser {
         self.set_busy(true);
         self.status
             .set_text(&format!("Ricerca su {}…", query.provider));
+        *self.resolved.borrow_mut() = None;
+        self.artwork_choices.borrow_mut().clear();
+        self.import.set_label(self.initial_action_label());
         self.selected.set(None);
         self.import.set_sensitive(false);
         let (tx, rx) = mpsc::channel();
@@ -401,6 +445,9 @@ impl MetadataBrowser {
             self.results.remove(&child);
         }
         *self.query.borrow_mut() = Some(query);
+        *self.resolved.borrow_mut() = None;
+        self.artwork_choices.borrow_mut().clear();
+        self.import.set_label(self.initial_action_label());
         *self.hits.borrow_mut() = hits;
         for hit in self.hits.borrow().iter() {
             let row = gtk::Box::new(gtk::Orientation::Vertical, 4);
@@ -437,6 +484,10 @@ impl MetadataBrowser {
         if self.busy.get() {
             return;
         }
+        if self.resolved.borrow().is_some() {
+            self.start_artwork_import();
+            return;
+        }
         let Some(query) = self.query.borrow().clone() else {
             return;
         };
@@ -449,15 +500,144 @@ impl MetadataBrowser {
         };
         self.set_busy(true);
         self.status
-            .set_text("Caricamento dei dettagli e della locandina…");
-        let provider = hit.provider;
+            .set_text("Caricamento dei dettagli e delle locandine…");
         let (tx, rx) = mpsc::channel();
         thread::spawn(move || {
             let client = MetadataClient::default();
-            let result = client.resolve(&hit, &query).and_then(|metadata| {
-                let artwork = client.download_artwork(&metadata)?;
-                Ok((metadata, artwork))
+            let result = client.resolve(&hit, &query).map(|metadata| {
+                let jobs: Vec<_> = metadata
+                    .artwork_candidates()
+                    .into_iter()
+                    .take(16)
+                    .map(|candidate| {
+                        thread::spawn(move || {
+                            let preview = MetadataClient::default()
+                                .download_artwork_preview(&candidate)
+                                .ok();
+                            (candidate, preview)
+                        })
+                    })
+                    .collect();
+                let choices: Vec<_> = jobs.into_iter().filter_map(|job| job.join().ok()).collect();
+                (metadata, choices)
             });
+            let _ = tx.send(result);
+        });
+        let weak = Rc::downgrade(self);
+        glib::timeout_add_local(Duration::from_millis(50), move || {
+            let Some(browser) = weak.upgrade() else {
+                return glib::ControlFlow::Break;
+            };
+            match rx.try_recv() {
+                Ok(result) => {
+                    browser.set_busy(false);
+                    match result {
+                        Ok((metadata, choices)) => {
+                            if choices.is_empty() {
+                                if browser.mode == ImportMode::MetadataAndArtwork {
+                                    if let Some(owner) = browser.owner.upgrade() {
+                                        let provider = metadata.provider;
+                                        owner.apply_imported_metadata(metadata, None);
+                                        owner.status.set_text(&format!(
+                                            "Metadati importati da {provider}. Nessuna locandina disponibile."
+                                        ));
+                                    }
+                                    browser.window.close();
+                                } else {
+                                    browser.status.set_text(
+                                        "Il risultato selezionato non contiene locandine.",
+                                    );
+                                }
+                            } else {
+                                browser.display_artworks(metadata, choices);
+                            }
+                        }
+                        Err(error) => {
+                            browser.status.set_text("Importazione non riuscita.");
+                            if let Some(owner) = browser.owner.upgrade() {
+                                owner.error(
+                                    "Caricamento delle locandine non riuscito",
+                                    format!("{error:#}"),
+                                );
+                            }
+                        }
+                    }
+                    glib::ControlFlow::Break
+                }
+                Err(mpsc::TryRecvError::Disconnected) => {
+                    browser.set_busy(false);
+                    browser.status.set_text("Importazione interrotta.");
+                    glib::ControlFlow::Break
+                }
+                Err(mpsc::TryRecvError::Empty) => glib::ControlFlow::Continue,
+            }
+        });
+    }
+
+    fn display_artworks(
+        &self,
+        metadata: MetadataResult,
+        choices: Vec<(ArtworkCandidate, Option<Artwork>)>,
+    ) {
+        while let Some(child) = self.results.first_child() {
+            self.results.remove(&child);
+        }
+        self.hits.borrow_mut().clear();
+        self.selected.set(None);
+        *self.resolved.borrow_mut() = Some(metadata);
+        *self.artwork_choices.borrow_mut() =
+            choices.iter().map(|(choice, _)| choice.clone()).collect();
+        for (choice, preview) in choices {
+            let row = gtk::Box::new(gtk::Orientation::Horizontal, 14);
+            margins(&row, 10);
+            let picture = gtk::Picture::new();
+            picture.set_size_request(110, 145);
+            picture.set_content_fit(gtk::ContentFit::Contain);
+            picture.set_can_shrink(true);
+            picture.add_css_class("artwork-thumbnail");
+            if let Some(preview) = preview {
+                let bytes = glib::Bytes::from(&preview.bytes);
+                if let Ok(texture) = gdk::Texture::from_bytes(&bytes) {
+                    picture.set_paintable(Some(&texture));
+                }
+            }
+            row.append(&picture);
+            let text = gtk::Box::new(gtk::Orientation::Vertical, 5);
+            text.set_valign(gtk::Align::Center);
+            text.set_hexpand(true);
+            text.append(&label(&choice.label, "heading"));
+            text.append(&label(choice.provider.label(), "muted"));
+            row.append(&text);
+            self.results.append(&row);
+        }
+        self.import.set_label(self.artwork_action_label());
+        let count = self.artwork_choices.borrow().len();
+        self.status.set_text(&format!(
+            "Scegli una delle {count} locandine disponibili. La prima è preselezionata."
+        ));
+        if let Some(row) = self.results.first_child().and_downcast::<gtk::ListBoxRow>() {
+            self.results.select_row(Some(&row));
+        }
+    }
+
+    fn start_artwork_import(self: &Rc<Self>) {
+        let Some(metadata) = self.resolved.borrow().clone() else {
+            return;
+        };
+        let Some(candidate) = self
+            .selected
+            .get()
+            .and_then(|index| self.artwork_choices.borrow().get(index).cloned())
+        else {
+            return;
+        };
+        self.set_busy(true);
+        self.status.set_text("Download della locandina originale…");
+        let (tx, rx) = mpsc::channel();
+        thread::spawn(move || {
+            let result = MetadataClient::default()
+                .download_artwork_candidate(&candidate)
+                .map(|artwork| (metadata, artwork));
             let _ = tx.send(result);
         });
         let weak = Rc::downgrade(self);
@@ -471,18 +651,27 @@ impl MetadataBrowser {
                     match result {
                         Ok((metadata, artwork)) => {
                             if let Some(owner) = browser.owner.upgrade() {
-                                owner.apply_imported_metadata(metadata, artwork);
-                                owner.status.set_text(&format!(
-                                    "Metadati importati da {provider}. Esporta per salvarli nel file."
-                                ));
+                                if browser.mode == ImportMode::ArtworkOnly {
+                                    let provider = artwork.provider;
+                                    owner.apply_imported_artwork(artwork);
+                                    owner.status.set_text(&format!(
+                                        "Locandina impostata da {provider}. Esporta per salvarla nel file."
+                                    ));
+                                } else {
+                                    let provider = metadata.provider;
+                                    owner.apply_imported_metadata(metadata, Some(artwork));
+                                    owner.status.set_text(&format!(
+                                        "Metadati e locandina importati da {provider}. Esporta per salvarli nel file."
+                                    ));
+                                }
                             }
                             browser.window.close();
                         }
                         Err(error) => {
-                            browser.status.set_text("Importazione non riuscita.");
+                            browser.status.set_text("Download non riuscito.");
                             if let Some(owner) = browser.owner.upgrade() {
                                 owner.error(
-                                    "Importazione dei metadati non riuscita",
+                                    "Download della locandina non riuscito",
                                     format!("{error:#}"),
                                 );
                             }
@@ -492,7 +681,7 @@ impl MetadataBrowser {
                 }
                 Err(mpsc::TryRecvError::Disconnected) => {
                     browser.set_busy(false);
-                    browser.status.set_text("Importazione interrotta.");
+                    browser.status.set_text("Download interrotto.");
                     glib::ControlFlow::Break
                 }
                 Err(mpsc::TryRecvError::Empty) => glib::ControlFlow::Continue,
@@ -631,6 +820,11 @@ impl Ui {
         let artwork_caption = label("Nessuna locandina importata", "muted");
         artwork_caption.set_wrap(true);
         meta.append(&artwork_caption);
+        let artwork_search = gtk::Button::with_label("Cambia locandina…");
+        artwork_search.set_tooltip_text(Some(
+            "Cerca e imposta soltanto una nuova locandina (Ctrl+Shift+M)",
+        ));
+        meta.append(&artwork_search);
         let mut fields = Vec::new();
         for (key, title, placeholder) in [
             ("title", "Titolo", "Titolo del film o dell’episodio"),
@@ -737,7 +931,13 @@ impl Ui {
         let weak = Rc::downgrade(&ui);
         metadata_search.connect_clicked(move |_| {
             if let Some(ui) = weak.upgrade() {
-                ui.show_metadata_browser();
+                ui.show_metadata_browser(ImportMode::MetadataAndArtwork);
+            }
+        });
+        let weak = Rc::downgrade(&ui);
+        artwork_search.connect_clicked(move |_| {
+            if let Some(ui) = weak.upgrade() {
+                ui.show_metadata_browser(ImportMode::ArtworkOnly);
             }
         });
         let weak = Rc::downgrade(&ui);
@@ -800,15 +1000,16 @@ impl Ui {
             ("subtitle", "<Primary>i"),
             ("export", "<Primary><Shift>s"),
             ("metadata", "<Primary>m"),
+            ("artwork", "<Primary><Shift>m"),
         ] {
             let action = gio::SimpleAction::new(name, None);
             let weak = Rc::downgrade(&ui);
             action.connect_activate(move |_, _| {
                 if let Some(ui) = weak.upgrade() {
-                    if name == "metadata" {
-                        ui.show_metadata_browser();
-                    } else {
-                        ui.choose(name);
+                    match name {
+                        "metadata" => ui.show_metadata_browser(ImportMode::MetadataAndArtwork),
+                        "artwork" => ui.show_metadata_browser(ImportMode::ArtworkOnly),
+                        _ => ui.choose(name),
                     }
                 }
             });
@@ -912,7 +1113,7 @@ impl Ui {
             .build()
             .show(Some(&self.window));
     }
-    fn show_metadata_browser(self: &Rc<Self>) {
+    fn show_metadata_browser(self: &Rc<Self>, mode: ImportMode) {
         if self.busy.get() || self.document.borrow().is_none() {
             return;
         }
@@ -922,7 +1123,7 @@ impl Ui {
             browser.window.present();
             return;
         }
-        let browser = MetadataBrowser::new(self);
+        let browser = MetadataBrowser::new(self, mode);
         *self.metadata_browser.borrow_mut() = Some(browser);
     }
     fn apply_imported_metadata(
@@ -934,6 +1135,14 @@ impl Ui {
             return;
         };
         doc.apply_metadata(metadata, artwork);
+        self.display_document(doc);
+        self.mark_dirty();
+    }
+    fn apply_imported_artwork(self: &Rc<Self>, artwork: Artwork) {
+        let Some(mut doc) = self.document.borrow().clone() else {
+            return;
+        };
+        doc.set_artwork(artwork);
         self.display_document(doc);
         self.mark_dirty();
     }
@@ -1554,6 +1763,25 @@ mod tests {
             "{}",
             String::from_utf8_lossy(&result.stderr)
         );
+        let poster = dir.path().join("poster.jpg");
+        let poster_result = std::process::Command::new("ffmpeg")
+            .args([
+                "-hide_banner",
+                "-loglevel",
+                "error",
+                "-nostdin",
+                "-y",
+                "-f",
+                "lavfi",
+                "-i",
+                "color=c=0x7759ce:s=300x450",
+                "-frames:v",
+                "1",
+            ])
+            .arg(&poster)
+            .output()
+            .unwrap();
+        assert!(poster_result.status.success());
         let ui = Ui::new(&app);
         ui.window.present();
         ui.load(dir.path().join("Viaggio-notturno.mkv"));
@@ -1598,7 +1826,7 @@ mod tests {
             ui.document.borrow().as_ref().unwrap().metadata["title"],
             "Viaggio notturno - Prova GUI"
         );
-        ui.show_metadata_browser();
+        ui.show_metadata_browser(ImportMode::MetadataAndArtwork);
         let browser = ui.metadata_browser.borrow().as_ref().unwrap().clone();
         assert_eq!(browser.provider.selected(), 0);
         assert_eq!(browser.kind.selected(), 0);
@@ -1606,6 +1834,37 @@ mod tests {
         assert!(!browser.season.is_sensitive());
         browser.kind.set_selected(1);
         assert!(browser.season.is_sensitive());
+        let choices = vec![
+            ArtworkCandidate {
+                provider: Provider::AppleTv,
+                url: "https://example.test/poster.jpg".into(),
+                thumbnail_url: "https://example.test/poster-small.jpg".into(),
+                label: "Poster".into(),
+            },
+            ArtworkCandidate {
+                provider: Provider::AppleTv,
+                url: "https://example.test/wide.jpg".into(),
+                thumbnail_url: "https://example.test/wide-small.jpg".into(),
+                label: "Poster panoramico".into(),
+            },
+        ];
+        browser.display_artworks(
+            MetadataResult {
+                provider: Provider::AppleTv,
+                fields: std::collections::BTreeMap::new(),
+                artwork_url: Some(choices[0].url.clone()),
+                artworks: choices.clone(),
+                source_url: None,
+                attribution: Provider::AppleTv.attribution().into(),
+            },
+            choices.into_iter().map(|choice| (choice, None)).collect(),
+        );
+        assert_eq!(browser.artwork_choices.borrow().len(), 2);
+        assert_eq!(browser.selected.get(), Some(0));
+        assert_eq!(
+            browser.import.label().as_deref(),
+            Some("Importa metadati e locandina")
+        );
         if let Some(path) = std::env::var_os("SUBLER_TEST_BROWSER_SCREENSHOT") {
             let mut frames = 0;
             pump_until(|| {
@@ -1629,6 +1888,37 @@ mod tests {
                 .unwrap();
         }
         browser.window.close();
+        let artwork_browser = MetadataBrowser::new(&ui, ImportMode::ArtworkOnly);
+        assert_eq!(artwork_browser.mode, ImportMode::ArtworkOnly);
+        assert_eq!(artwork_browser.term.text(), "Viaggio notturno - Prova GUI");
+        assert_eq!(
+            artwork_browser.import.label().as_deref(),
+            Some("Mostra locandine")
+        );
+        artwork_browser.window.close();
+        let metadata_before = ui.document.borrow().as_ref().unwrap().metadata.clone();
+        let poster_bytes = std::fs::read(&poster).unwrap();
+        ui.apply_imported_artwork(Artwork {
+            bytes: poster_bytes.clone(),
+            media_type: "image/jpeg".into(),
+            source_url: "https://example.test/poster.jpg".into(),
+            provider: Provider::AppleTv,
+        });
+        assert_eq!(
+            ui.document.borrow().as_ref().unwrap().metadata,
+            metadata_before
+        );
+        assert_eq!(
+            ui.document
+                .borrow()
+                .as_ref()
+                .unwrap()
+                .artwork
+                .as_ref()
+                .unwrap()
+                .bytes,
+            poster_bytes
+        );
         // Capture only our widget tree, independent of overlapping desktop windows.
         if let Some(path) = std::env::var_os("SUBLER_TEST_SCREENSHOT") {
             let mut frames = 0;
@@ -1667,6 +1957,7 @@ mod tests {
         assert_eq!(subtitle.language, "ita");
         assert!(subtitle.forced);
         assert_eq!(doc.chapters.len(), 2);
+        assert!(doc.artwork.is_some());
         ui.window.close();
     }
 }

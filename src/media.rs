@@ -351,14 +351,18 @@ impl Document {
         }
         self.metadata
             .insert("metadata_attribution".into(), result.attribution);
-        if artwork.is_some() {
-            for track in &mut self.tracks {
-                if track.attached_picture {
-                    track.enabled = false;
-                }
-            }
-            self.artwork = artwork;
+        if let Some(artwork) = artwork {
+            self.set_artwork(artwork);
         }
+    }
+
+    pub fn set_artwork(&mut self, artwork: Artwork) {
+        for track in &mut self.tracks {
+            if track.attached_picture {
+                track.enabled = false;
+            }
+        }
+        self.artwork = Some(artwork);
     }
 }
 

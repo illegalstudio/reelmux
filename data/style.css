@@ -9,6 +9,7 @@
 .track-title { font-weight: 600; }
 .muted { opacity: 0.67; font-size: 12px; }
 .card { border: 1px solid alpha(currentColor, 0.13); border-radius: 10px; }
+.artwork-thumbnail { background: alpha(currentColor, 0.05); border: 1px solid alpha(currentColor, 0.12); border-radius: 8px; }
 .tracks-table { border-radius: 10px; }
 .tracks-table header { font-size: 11px; font-weight: 600; }
 .tracks-table entry { padding: 5px; min-height: 24px; }

@@ -13,7 +13,8 @@ Un editor MP4 per Linux scritto in Rust e GTK4, ispirato a
 - Modifica di titolo, data, genere, descrizione, serie, stagione ed episodio.
 - Ricerca di film e serie su Apple TV, TheMovieDB, TheTVDB e iTunes Store.
 - Importazione di descrizione, cast, troupe, studio, classificazione e altri campi disponibili.
-- Download, anteprima e incorporamento della locandina nell'atom MP4 `covr`.
+- Selezione tra più locandine, anteprima e incorporamento nell'atom MP4 `covr`.
+- Sostituzione della sola locandina, senza cambiare i metadati già presenti.
 - Trasferimento dei capitoli originali.
 - Esportazione in background, avanzamento, annullamento e verifica delle tracce.
 - Interfaccia a riga di comando per ispezione ed esportazione.
@@ -49,7 +50,8 @@ cargo run --locked -- /percorso/al/video.mkv
 ```
 
 Scorciatoie: `Ctrl+O` apre un file, `Ctrl+I` aggiunge un SRT,
-`Ctrl+M` cerca i metadati, `Ctrl+Shift+S` esporta un MP4.
+`Ctrl+M` cerca i metadati, `Ctrl+Shift+M` cambia soltanto la locandina,
+`Ctrl+Shift+S` esporta un MP4.
 
 Per le lingue sono accettati codici a due o tre lettere: `it` / `ita`,
 `en` / `eng`, `de` / `deu` / `ger`. Un valore vuoto equivale a `und`.
@@ -71,8 +73,10 @@ cargo run --locked
 
 Le chiavi comprese nel sorgente di Subler non vengono riutilizzate. La finestra
 **Cerca online** consente di scegliere provider, film o serie, lingua, paese,
-stagione ed episodio. Dopo la selezione scarica anche la migliore locandina
-indicata dal provider. La disponibilità dei cataloghi varia per paese.
+stagione ed episodio. Dopo la selezione mostra le locandine disponibili e scarica
+in alta risoluzione soltanto quella scelta. Il pulsante **Cambia locandina** usa la
+stessa ricerca senza modificare gli altri metadati. La disponibilità dei cataloghi
+e il numero di immagini variano per paese e provider.
 
 This product uses the TMDB API but is not endorsed or certified by TMDB.
 Per i risultati TheTVDB, i metadati sono forniti da
@@ -139,8 +143,8 @@ si può acquisire la sola finestra del test, senza catturare il resto del deskto
 - Nessuna modifica dei capitoli o coda batch.
 - Apple TV usa l'endpoint pubblico consultato da Subler, che non ha una specifica
   pubblica stabile. iTunes Store può non restituire film in alcuni cataloghi.
-- La mappatura copre i principali campi offerti dai quattro provider. Rating
-  territoriali complessi e più locandine selezionabili richiedono altro lavoro.
+- La mappatura copre i principali campi offerti dai quattro provider. I rating
+  territoriali complessi richiedono altro lavoro.
 - I sottotitoli bitmap richiedono OCR esterno. Gli stili ASS/SSA possono essere persi
   nella conversione in testo MP4.
 - Nessuna promessa di conservazione completa degli atom MP4 proprietari, dei legami
