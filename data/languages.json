@@ -1,0 +1,2894 @@
+[
+  {
+    "name": "Unknown",
+    "alpha2": "",
+    "alpha3": "und",
+    "bibliographic": ""
+  },
+  {
+    "name": "Abkhazian",
+    "alpha2": "ab",
+    "alpha3": "abk",
+    "bibliographic": ""
+  },
+  {
+    "name": "Acehnese, Achinese",
+    "alpha2": "",
+    "alpha3": "ace",
+    "bibliographic": ""
+  },
+  {
+    "name": "Acoli",
+    "alpha2": "",
+    "alpha3": "ach",
+    "bibliographic": ""
+  },
+  {
+    "name": "Adangme",
+    "alpha2": "",
+    "alpha3": "ada",
+    "bibliographic": ""
+  },
+  {
+    "name": "Adyghe, Adygei",
+    "alpha2": "",
+    "alpha3": "ady",
+    "bibliographic": ""
+  },
+  {
+    "name": "Afar",
+    "alpha2": "aa",
+    "alpha3": "aar",
+    "bibliographic": ""
+  },
+  {
+    "name": "Afrihili",
+    "alpha2": "",
+    "alpha3": "afh",
+    "bibliographic": ""
+  },
+  {
+    "name": "Afrikaans",
+    "alpha2": "af",
+    "alpha3": "afr",
+    "bibliographic": ""
+  },
+  {
+    "name": "Afroasiatic languages",
+    "alpha2": "",
+    "alpha3": "afa",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ainu (Japan)",
+    "alpha2": "",
+    "alpha3": "ain",
+    "bibliographic": ""
+  },
+  {
+    "name": "Akan",
+    "alpha2": "ak",
+    "alpha3": "aka",
+    "bibliographic": ""
+  },
+  {
+    "name": "Akkadian",
+    "alpha2": "",
+    "alpha3": "akk",
+    "bibliographic": ""
+  },
+  {
+    "name": "Albanian",
+    "alpha2": "sq",
+    "alpha3": "sqi",
+    "bibliographic": "alb"
+  },
+  {
+    "name": "Aleut",
+    "alpha2": "",
+    "alpha3": "ale",
+    "bibliographic": ""
+  },
+  {
+    "name": "Algonquian languages",
+    "alpha2": "",
+    "alpha3": "alg",
+    "bibliographic": ""
+  },
+  {
+    "name": "Altaic languages",
+    "alpha2": "",
+    "alpha3": "tut",
+    "bibliographic": ""
+  },
+  {
+    "name": "Amharic",
+    "alpha2": "am",
+    "alpha3": "amh",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ancient Greek",
+    "alpha2": "",
+    "alpha3": "grc",
+    "bibliographic": ""
+  },
+  {
+    "name": "Angika",
+    "alpha2": "",
+    "alpha3": "anp",
+    "bibliographic": ""
+  },
+  {
+    "name": "Apache languages",
+    "alpha2": "",
+    "alpha3": "apa",
+    "bibliographic": ""
+  },
+  {
+    "name": "Arabic",
+    "alpha2": "ar",
+    "alpha3": "ara",
+    "bibliographic": ""
+  },
+  {
+    "name": "Aragonese",
+    "alpha2": "an",
+    "alpha3": "arg",
+    "bibliographic": ""
+  },
+  {
+    "name": "Arapaho",
+    "alpha2": "",
+    "alpha3": "arp",
+    "bibliographic": ""
+  },
+  {
+    "name": "Arawak",
+    "alpha2": "",
+    "alpha3": "arw",
+    "bibliographic": ""
+  },
+  {
+    "name": "Armenian",
+    "alpha2": "hy",
+    "alpha3": "hye",
+    "bibliographic": "arm"
+  },
+  {
+    "name": "Aromanian, Arumanian, Macedo-Romanian",
+    "alpha2": "",
+    "alpha3": "rup",
+    "bibliographic": ""
+  },
+  {
+    "name": "Artificial languages",
+    "alpha2": "",
+    "alpha3": "art",
+    "bibliographic": ""
+  },
+  {
+    "name": "Assamese",
+    "alpha2": "as",
+    "alpha3": "asm",
+    "bibliographic": ""
+  },
+  {
+    "name": "Asturian, Bable, Leonese, Asturleonese",
+    "alpha2": "",
+    "alpha3": "ast",
+    "bibliographic": ""
+  },
+  {
+    "name": "Athabaskan languages",
+    "alpha2": "",
+    "alpha3": "ath",
+    "bibliographic": ""
+  },
+  {
+    "name": "Australian languages",
+    "alpha2": "",
+    "alpha3": "aus",
+    "bibliographic": ""
+  },
+  {
+    "name": "Austronesian languages",
+    "alpha2": "",
+    "alpha3": "map",
+    "bibliographic": ""
+  },
+  {
+    "name": "Avaric",
+    "alpha2": "av",
+    "alpha3": "ava",
+    "bibliographic": ""
+  },
+  {
+    "name": "Avestan",
+    "alpha2": "ae",
+    "alpha3": "ave",
+    "bibliographic": ""
+  },
+  {
+    "name": "Awadhi",
+    "alpha2": "",
+    "alpha3": "awa",
+    "bibliographic": ""
+  },
+  {
+    "name": "Aymara",
+    "alpha2": "ay",
+    "alpha3": "aym",
+    "bibliographic": ""
+  },
+  {
+    "name": "Azerbaijani",
+    "alpha2": "az",
+    "alpha3": "aze",
+    "bibliographic": ""
+  },
+  {
+    "name": "Balinese",
+    "alpha2": "",
+    "alpha3": "ban",
+    "bibliographic": ""
+  },
+  {
+    "name": "Baltic languages",
+    "alpha2": "",
+    "alpha3": "bat",
+    "bibliographic": ""
+  },
+  {
+    "name": "Baluchi",
+    "alpha2": "",
+    "alpha3": "bal",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bambara",
+    "alpha2": "bm",
+    "alpha3": "bam",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bamileke languages",
+    "alpha2": "",
+    "alpha3": "bai",
+    "bibliographic": ""
+  },
+  {
+    "name": "Banda languages",
+    "alpha2": "",
+    "alpha3": "bad",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bantu languages",
+    "alpha2": "",
+    "alpha3": "bnt",
+    "bibliographic": ""
+  },
+  {
+    "name": "Basa",
+    "alpha2": "",
+    "alpha3": "bas",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bashkir",
+    "alpha2": "ba",
+    "alpha3": "bak",
+    "bibliographic": ""
+  },
+  {
+    "name": "Basque",
+    "alpha2": "eu",
+    "alpha3": "eus",
+    "bibliographic": "baq"
+  },
+  {
+    "name": "Batak languages",
+    "alpha2": "",
+    "alpha3": "btk",
+    "bibliographic": ""
+  },
+  {
+    "name": "Beja, Bedawiyet",
+    "alpha2": "",
+    "alpha3": "bej",
+    "bibliographic": ""
+  },
+  {
+    "name": "Belarusian",
+    "alpha2": "be",
+    "alpha3": "bel",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bemba",
+    "alpha2": "",
+    "alpha3": "bem",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bengali",
+    "alpha2": "bn",
+    "alpha3": "ben",
+    "bibliographic": ""
+  },
+  {
+    "name": "Berber languages",
+    "alpha2": "",
+    "alpha3": "ber",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bhojpuri",
+    "alpha2": "",
+    "alpha3": "bho",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bihari languages",
+    "alpha2": "bh",
+    "alpha3": "bih",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bikol",
+    "alpha2": "",
+    "alpha3": "bik",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bini, Edo",
+    "alpha2": "",
+    "alpha3": "bin",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bislama",
+    "alpha2": "bi",
+    "alpha3": "bis",
+    "bibliographic": ""
+  },
+  {
+    "name": "Blackfoot, Siksika",
+    "alpha2": "",
+    "alpha3": "bla",
+    "bibliographic": ""
+  },
+  {
+    "name": "Blin, Bilin",
+    "alpha2": "",
+    "alpha3": "byn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Blissymbols, Blissymbolics, Bliss",
+    "alpha2": "",
+    "alpha3": "zbl",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bosnian",
+    "alpha2": "bs",
+    "alpha3": "bos",
+    "bibliographic": ""
+  },
+  {
+    "name": "Braj",
+    "alpha2": "",
+    "alpha3": "bra",
+    "bibliographic": ""
+  },
+  {
+    "name": "Breton",
+    "alpha2": "br",
+    "alpha3": "bre",
+    "bibliographic": ""
+  },
+  {
+    "name": "Buginese",
+    "alpha2": "",
+    "alpha3": "bug",
+    "bibliographic": ""
+  },
+  {
+    "name": "Bulgarian",
+    "alpha2": "bg",
+    "alpha3": "bul",
+    "bibliographic": ""
+  },
+  {
+    "name": "Buriat",
+    "alpha2": "",
+    "alpha3": "bua",
+    "bibliographic": ""
+  },
+  {
+    "name": "Burmese",
+    "alpha2": "my",
+    "alpha3": "mya",
+    "bibliographic": "bur"
+  },
+  {
+    "name": "Caddo",
+    "alpha2": "",
+    "alpha3": "cad",
+    "bibliographic": ""
+  },
+  {
+    "name": "Catalan, Valencian",
+    "alpha2": "ca",
+    "alpha3": "cat",
+    "bibliographic": ""
+  },
+  {
+    "name": "Caucasian languages",
+    "alpha2": "",
+    "alpha3": "cau",
+    "bibliographic": ""
+  },
+  {
+    "name": "Cebuano",
+    "alpha2": "",
+    "alpha3": "ceb",
+    "bibliographic": ""
+  },
+  {
+    "name": "Celtic languages",
+    "alpha2": "",
+    "alpha3": "cel",
+    "bibliographic": ""
+  },
+  {
+    "name": "Central American Indian languages",
+    "alpha2": "",
+    "alpha3": "cai",
+    "bibliographic": ""
+  },
+  {
+    "name": "Central Khmer",
+    "alpha2": "km",
+    "alpha3": "khm",
+    "bibliographic": ""
+  },
+  {
+    "name": "Chagatai",
+    "alpha2": "",
+    "alpha3": "chg",
+    "bibliographic": ""
+  },
+  {
+    "name": "Chamic languages",
+    "alpha2": "",
+    "alpha3": "cmc",
+    "bibliographic": ""
+  },
+  {
+    "name": "Chamorro",
+    "alpha2": "ch",
+    "alpha3": "cha",
+    "bibliographic": ""
+  },
+  {
+    "name": "Chechen",
+    "alpha2": "ce",
+    "alpha3": "che",
+    "bibliographic": ""
+  },
+  {
+    "name": "Cherokee",
+    "alpha2": "",
+    "alpha3": "chr",
+    "bibliographic": ""
+  },
+  {
+    "name": "Cheyenne",
+    "alpha2": "",
+    "alpha3": "chy",
+    "bibliographic": ""
+  },
+  {
+    "name": "Chibcha",
+    "alpha2": "",
+    "alpha3": "chb",
+    "bibliographic": ""
+  },
+  {
+    "name": "Chichewa, Chewa, Nyanja",
+    "alpha2": "ny",
+    "alpha3": "nya",
+    "bibliographic": ""
+  },
+  {
+    "name": "Chinese",
+    "alpha2": "zh",
+    "alpha3": "zho",
+    "bibliographic": "chi"
+  },
+  {
+    "name": "Chinook Jargon",
+    "alpha2": "",
+    "alpha3": "chn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Chipewyan, Dene Suline",
+    "alpha2": "",
+    "alpha3": "chp",
+    "bibliographic": ""
+  },
+  {
+    "name": "Choctaw",
+    "alpha2": "",
+    "alpha3": "cho",
+    "bibliographic": ""
+  },
+  {
+    "name": "Church Slavonic, Church Slavic, Old Church Slavonic, Old Slavonic, Old Bulgarian",
+    "alpha2": "cu",
+    "alpha3": "chu",
+    "bibliographic": ""
+  },
+  {
+    "name": "Chuukese",
+    "alpha2": "",
+    "alpha3": "chk",
+    "bibliographic": ""
+  },
+  {
+    "name": "Chuvash",
+    "alpha2": "cv",
+    "alpha3": "chv",
+    "bibliographic": ""
+  },
+  {
+    "name": "Circassian",
+    "alpha2": "",
+    "alpha3": "kbd",
+    "bibliographic": ""
+  },
+  {
+    "name": "Classical Newari, Old Newari, Classical Nepal Bhasa",
+    "alpha2": "",
+    "alpha3": "nwc",
+    "bibliographic": ""
+  },
+  {
+    "name": "Classical Syriac",
+    "alpha2": "",
+    "alpha3": "syc",
+    "bibliographic": ""
+  },
+  {
+    "name": "Coptic",
+    "alpha2": "",
+    "alpha3": "cop",
+    "bibliographic": ""
+  },
+  {
+    "name": "Cornish",
+    "alpha2": "kw",
+    "alpha3": "cor",
+    "bibliographic": ""
+  },
+  {
+    "name": "Corsican",
+    "alpha2": "co",
+    "alpha3": "cos",
+    "bibliographic": ""
+  },
+  {
+    "name": "Cree",
+    "alpha2": "cr",
+    "alpha3": "cre",
+    "bibliographic": ""
+  },
+  {
+    "name": "Creek",
+    "alpha2": "",
+    "alpha3": "mus",
+    "bibliographic": ""
+  },
+  {
+    "name": "creoles and pidgins",
+    "alpha2": "",
+    "alpha3": "crp",
+    "bibliographic": ""
+  },
+  {
+    "name": "creoles and pidgins, English-based",
+    "alpha2": "",
+    "alpha3": "cpe",
+    "bibliographic": ""
+  },
+  {
+    "name": "creoles and pidgins, French-based",
+    "alpha2": "",
+    "alpha3": "cpf",
+    "bibliographic": ""
+  },
+  {
+    "name": "creoles and pidgins, Portuguese-based",
+    "alpha2": "",
+    "alpha3": "cpp",
+    "bibliographic": ""
+  },
+  {
+    "name": "Crimean Tatar, Crimean Turkish",
+    "alpha2": "",
+    "alpha3": "crh",
+    "bibliographic": ""
+  },
+  {
+    "name": "Croatian",
+    "alpha2": "hr",
+    "alpha3": "hrv",
+    "bibliographic": ""
+  },
+  {
+    "name": "Cushitic languages",
+    "alpha2": "",
+    "alpha3": "cus",
+    "bibliographic": ""
+  },
+  {
+    "name": "Czech",
+    "alpha2": "cs",
+    "alpha3": "ces",
+    "bibliographic": "cze"
+  },
+  {
+    "name": "Dakota",
+    "alpha2": "",
+    "alpha3": "dak",
+    "bibliographic": ""
+  },
+  {
+    "name": "Danish",
+    "alpha2": "da",
+    "alpha3": "dan",
+    "bibliographic": ""
+  },
+  {
+    "name": "Dargwa",
+    "alpha2": "",
+    "alpha3": "dar",
+    "bibliographic": ""
+  },
+  {
+    "name": "Delaware",
+    "alpha2": "",
+    "alpha3": "del",
+    "bibliographic": ""
+  },
+  {
+    "name": "Dinka",
+    "alpha2": "",
+    "alpha3": "din",
+    "bibliographic": ""
+  },
+  {
+    "name": "Divehi, Dhivehi, Maldivian",
+    "alpha2": "dv",
+    "alpha3": "div",
+    "bibliographic": ""
+  },
+  {
+    "name": "Dogri",
+    "alpha2": "",
+    "alpha3": "doi",
+    "bibliographic": ""
+  },
+  {
+    "name": "Dogrib",
+    "alpha2": "",
+    "alpha3": "dgr",
+    "bibliographic": ""
+  },
+  {
+    "name": "Dravidian languages",
+    "alpha2": "",
+    "alpha3": "dra",
+    "bibliographic": ""
+  },
+  {
+    "name": "Duala",
+    "alpha2": "",
+    "alpha3": "dua",
+    "bibliographic": ""
+  },
+  {
+    "name": "Dutch",
+    "alpha2": "nl",
+    "alpha3": "nld",
+    "bibliographic": "dut"
+  },
+  {
+    "name": "Dutch, Middle (c. 1050–1350)",
+    "alpha2": "",
+    "alpha3": "dum",
+    "bibliographic": ""
+  },
+  {
+    "name": "Dyula",
+    "alpha2": "",
+    "alpha3": "dyu",
+    "bibliographic": ""
+  },
+  {
+    "name": "Dzongkha",
+    "alpha2": "dz",
+    "alpha3": "dzo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Eastern Frisian",
+    "alpha2": "",
+    "alpha3": "frs",
+    "bibliographic": ""
+  },
+  {
+    "name": "Efik",
+    "alpha2": "",
+    "alpha3": "efi",
+    "bibliographic": ""
+  },
+  {
+    "name": "Egyptian (Ancient)",
+    "alpha2": "",
+    "alpha3": "egy",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ekajuk",
+    "alpha2": "",
+    "alpha3": "eka",
+    "bibliographic": ""
+  },
+  {
+    "name": "Elamite",
+    "alpha2": "",
+    "alpha3": "elx",
+    "bibliographic": ""
+  },
+  {
+    "name": "English",
+    "alpha2": "en",
+    "alpha3": "eng",
+    "bibliographic": ""
+  },
+  {
+    "name": "Erzya",
+    "alpha2": "",
+    "alpha3": "myv",
+    "bibliographic": ""
+  },
+  {
+    "name": "Esperanto",
+    "alpha2": "eo",
+    "alpha3": "epo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Estonian",
+    "alpha2": "et",
+    "alpha3": "est",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ewe",
+    "alpha2": "ee",
+    "alpha3": "ewe",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ewondo",
+    "alpha2": "",
+    "alpha3": "ewo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Fang",
+    "alpha2": "",
+    "alpha3": "fan",
+    "bibliographic": ""
+  },
+  {
+    "name": "Fanti",
+    "alpha2": "",
+    "alpha3": "fat",
+    "bibliographic": ""
+  },
+  {
+    "name": "Faroese",
+    "alpha2": "fo",
+    "alpha3": "fao",
+    "bibliographic": ""
+  },
+  {
+    "name": "Fijian",
+    "alpha2": "fj",
+    "alpha3": "fij",
+    "bibliographic": ""
+  },
+  {
+    "name": "Filipino, Pilipino",
+    "alpha2": "",
+    "alpha3": "fil",
+    "bibliographic": ""
+  },
+  {
+    "name": "Finnish",
+    "alpha2": "fi",
+    "alpha3": "fin",
+    "bibliographic": ""
+  },
+  {
+    "name": "Finno-Ugric languages",
+    "alpha2": "",
+    "alpha3": "fiu",
+    "bibliographic": ""
+  },
+  {
+    "name": "Fon",
+    "alpha2": "",
+    "alpha3": "fon",
+    "bibliographic": ""
+  },
+  {
+    "name": "French",
+    "alpha2": "fr",
+    "alpha3": "fra",
+    "bibliographic": "fre"
+  },
+  {
+    "name": "Friulian",
+    "alpha2": "",
+    "alpha3": "fur",
+    "bibliographic": ""
+  },
+  {
+    "name": "Fulah",
+    "alpha2": "ff",
+    "alpha3": "ful",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ga",
+    "alpha2": "",
+    "alpha3": "gaa",
+    "bibliographic": ""
+  },
+  {
+    "name": "Galibi Carib",
+    "alpha2": "",
+    "alpha3": "car",
+    "bibliographic": ""
+  },
+  {
+    "name": "Galician",
+    "alpha2": "gl",
+    "alpha3": "glg",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ganda",
+    "alpha2": "lg",
+    "alpha3": "lug",
+    "bibliographic": ""
+  },
+  {
+    "name": "Gayo",
+    "alpha2": "",
+    "alpha3": "gay",
+    "bibliographic": ""
+  },
+  {
+    "name": "Gbaya",
+    "alpha2": "",
+    "alpha3": "gba",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ge'ez",
+    "alpha2": "",
+    "alpha3": "gez",
+    "bibliographic": ""
+  },
+  {
+    "name": "Georgian",
+    "alpha2": "ka",
+    "alpha3": "kat",
+    "bibliographic": "geo"
+  },
+  {
+    "name": "German",
+    "alpha2": "de",
+    "alpha3": "deu",
+    "bibliographic": "ger"
+  },
+  {
+    "name": "Germanic languages",
+    "alpha2": "",
+    "alpha3": "gem",
+    "bibliographic": ""
+  },
+  {
+    "name": "Gilbertese, Kiribati",
+    "alpha2": "",
+    "alpha3": "gil",
+    "bibliographic": ""
+  },
+  {
+    "name": "Gondi",
+    "alpha2": "",
+    "alpha3": "gon",
+    "bibliographic": ""
+  },
+  {
+    "name": "Gorontalo",
+    "alpha2": "",
+    "alpha3": "gor",
+    "bibliographic": ""
+  },
+  {
+    "name": "Gothic",
+    "alpha2": "",
+    "alpha3": "got",
+    "bibliographic": ""
+  },
+  {
+    "name": "Grebo",
+    "alpha2": "",
+    "alpha3": "grb",
+    "bibliographic": ""
+  },
+  {
+    "name": "Greenlandic, Kalaallisut",
+    "alpha2": "kl",
+    "alpha3": "kal",
+    "bibliographic": ""
+  },
+  {
+    "name": "Guarani",
+    "alpha2": "gn",
+    "alpha3": "grn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Gujarati",
+    "alpha2": "gu",
+    "alpha3": "guj",
+    "bibliographic": ""
+  },
+  {
+    "name": "Gwichʼin",
+    "alpha2": "",
+    "alpha3": "gwi",
+    "bibliographic": ""
+  },
+  {
+    "name": "Haida",
+    "alpha2": "",
+    "alpha3": "hai",
+    "bibliographic": ""
+  },
+  {
+    "name": "Haitian Creole, Haitian",
+    "alpha2": "ht",
+    "alpha3": "hat",
+    "bibliographic": ""
+  },
+  {
+    "name": "Hausa",
+    "alpha2": "ha",
+    "alpha3": "hau",
+    "bibliographic": ""
+  },
+  {
+    "name": "Hawaiian",
+    "alpha2": "",
+    "alpha3": "haw",
+    "bibliographic": ""
+  },
+  {
+    "name": "Hebrew",
+    "alpha2": "he",
+    "alpha3": "heb",
+    "bibliographic": ""
+  },
+  {
+    "name": "Herero",
+    "alpha2": "hz",
+    "alpha3": "her",
+    "bibliographic": ""
+  },
+  {
+    "name": "Hiligaynon",
+    "alpha2": "",
+    "alpha3": "hil",
+    "bibliographic": ""
+  },
+  {
+    "name": "Himachali languages",
+    "alpha2": "",
+    "alpha3": "him",
+    "bibliographic": ""
+  },
+  {
+    "name": "Hindi",
+    "alpha2": "hi",
+    "alpha3": "hin",
+    "bibliographic": ""
+  },
+  {
+    "name": "Hiri Motu",
+    "alpha2": "ho",
+    "alpha3": "hmo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Hittite",
+    "alpha2": "",
+    "alpha3": "hit",
+    "bibliographic": ""
+  },
+  {
+    "name": "Hmong",
+    "alpha2": "",
+    "alpha3": "hmn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Hungarian",
+    "alpha2": "hu",
+    "alpha3": "hun",
+    "bibliographic": ""
+  },
+  {
+    "name": "Hupa",
+    "alpha2": "",
+    "alpha3": "hup",
+    "bibliographic": ""
+  },
+  {
+    "name": "Iban",
+    "alpha2": "",
+    "alpha3": "iba",
+    "bibliographic": ""
+  },
+  {
+    "name": "Icelandic",
+    "alpha2": "is",
+    "alpha3": "isl",
+    "bibliographic": "ice"
+  },
+  {
+    "name": "Ido",
+    "alpha2": "io",
+    "alpha3": "ido",
+    "bibliographic": ""
+  },
+  {
+    "name": "Igbo",
+    "alpha2": "ig",
+    "alpha3": "ibo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ijo languages",
+    "alpha2": "",
+    "alpha3": "ijo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Iloko",
+    "alpha2": "",
+    "alpha3": "ilo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Inari Sami",
+    "alpha2": "",
+    "alpha3": "smn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Indic languages",
+    "alpha2": "",
+    "alpha3": "inc",
+    "bibliographic": ""
+  },
+  {
+    "name": "Indo-European languages",
+    "alpha2": "",
+    "alpha3": "ine",
+    "bibliographic": ""
+  },
+  {
+    "name": "Indonesian",
+    "alpha2": "id",
+    "alpha3": "ind",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ingush",
+    "alpha2": "",
+    "alpha3": "inh",
+    "bibliographic": ""
+  },
+  {
+    "name": "Interlingua (International Auxiliary Language Association)",
+    "alpha2": "ia",
+    "alpha3": "ina",
+    "bibliographic": ""
+  },
+  {
+    "name": "Interlingue, Occidental",
+    "alpha2": "ie",
+    "alpha3": "ile",
+    "bibliographic": ""
+  },
+  {
+    "name": "Inuktitut",
+    "alpha2": "iu",
+    "alpha3": "iku",
+    "bibliographic": ""
+  },
+  {
+    "name": "Inupiaq",
+    "alpha2": "ik",
+    "alpha3": "ipk",
+    "bibliographic": ""
+  },
+  {
+    "name": "Iranian languages",
+    "alpha2": "",
+    "alpha3": "ira",
+    "bibliographic": ""
+  },
+  {
+    "name": "Irish",
+    "alpha2": "ga",
+    "alpha3": "gle",
+    "bibliographic": ""
+  },
+  {
+    "name": "Iroquoian languages",
+    "alpha2": "",
+    "alpha3": "iro",
+    "bibliographic": ""
+  },
+  {
+    "name": "Italian",
+    "alpha2": "it",
+    "alpha3": "ita",
+    "bibliographic": ""
+  },
+  {
+    "name": "Japanese",
+    "alpha2": "ja",
+    "alpha3": "jpn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Javanese",
+    "alpha2": "jv",
+    "alpha3": "jav",
+    "bibliographic": ""
+  },
+  {
+    "name": "Judeo-Arabic",
+    "alpha2": "",
+    "alpha3": "jrb",
+    "bibliographic": ""
+  },
+  {
+    "name": "Judæo-Persian",
+    "alpha2": "",
+    "alpha3": "jpr",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kabyle",
+    "alpha2": "",
+    "alpha3": "kab",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kachin, Jingpho",
+    "alpha2": "",
+    "alpha3": "kac",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kalmyk, Oirat",
+    "alpha2": "",
+    "alpha3": "xal",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kamba",
+    "alpha2": "",
+    "alpha3": "kam",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kannada",
+    "alpha2": "kn",
+    "alpha3": "kan",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kanuri",
+    "alpha2": "kr",
+    "alpha3": "kau",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kara-Kalpak",
+    "alpha2": "",
+    "alpha3": "kaa",
+    "bibliographic": ""
+  },
+  {
+    "name": "Karachay-Balkar",
+    "alpha2": "",
+    "alpha3": "krc",
+    "bibliographic": ""
+  },
+  {
+    "name": "Karelian",
+    "alpha2": "",
+    "alpha3": "krl",
+    "bibliographic": ""
+  },
+  {
+    "name": "Karen languages",
+    "alpha2": "",
+    "alpha3": "kar",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kashmiri",
+    "alpha2": "ks",
+    "alpha3": "kas",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kashubian",
+    "alpha2": "",
+    "alpha3": "csb",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kawi",
+    "alpha2": "",
+    "alpha3": "kaw",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kazakh",
+    "alpha2": "kk",
+    "alpha3": "kaz",
+    "bibliographic": ""
+  },
+  {
+    "name": "Khasi",
+    "alpha2": "",
+    "alpha3": "kha",
+    "bibliographic": ""
+  },
+  {
+    "name": "Khoisan languages",
+    "alpha2": "",
+    "alpha3": "khi",
+    "bibliographic": ""
+  },
+  {
+    "name": "Khotanese, Sakan",
+    "alpha2": "",
+    "alpha3": "kho",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kikuyu, Gikuyu",
+    "alpha2": "ki",
+    "alpha3": "kik",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kimbundu",
+    "alpha2": "",
+    "alpha3": "kmb",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kinyarwanda",
+    "alpha2": "rw",
+    "alpha3": "kin",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kirghiz, Kyrgyz",
+    "alpha2": "ky",
+    "alpha3": "kir",
+    "bibliographic": ""
+  },
+  {
+    "name": "Klingon",
+    "alpha2": "",
+    "alpha3": "tlh",
+    "bibliographic": ""
+  },
+  {
+    "name": "Komi",
+    "alpha2": "kv",
+    "alpha3": "kom",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kongo",
+    "alpha2": "kg",
+    "alpha3": "kon",
+    "bibliographic": ""
+  },
+  {
+    "name": "Konkani",
+    "alpha2": "",
+    "alpha3": "kok",
+    "bibliographic": ""
+  },
+  {
+    "name": "Korean",
+    "alpha2": "ko",
+    "alpha3": "kor",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kosraean",
+    "alpha2": "",
+    "alpha3": "kos",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kpelle",
+    "alpha2": "",
+    "alpha3": "kpe",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kru languages",
+    "alpha2": "",
+    "alpha3": "kro",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kuanyama, Kwanyama",
+    "alpha2": "kj",
+    "alpha3": "kua",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kumyk",
+    "alpha2": "",
+    "alpha3": "kum",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kurdish",
+    "alpha2": "ku",
+    "alpha3": "kur",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kurukh",
+    "alpha2": "",
+    "alpha3": "kru",
+    "bibliographic": ""
+  },
+  {
+    "name": "Kutenai",
+    "alpha2": "",
+    "alpha3": "kut",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ladino",
+    "alpha2": "",
+    "alpha3": "lad",
+    "bibliographic": ""
+  },
+  {
+    "name": "Lahnda",
+    "alpha2": "",
+    "alpha3": "lah",
+    "bibliographic": ""
+  },
+  {
+    "name": "Lamba",
+    "alpha2": "",
+    "alpha3": "lam",
+    "bibliographic": ""
+  },
+  {
+    "name": "Land Dayak languages",
+    "alpha2": "",
+    "alpha3": "day",
+    "bibliographic": ""
+  },
+  {
+    "name": "Lao",
+    "alpha2": "lo",
+    "alpha3": "lao",
+    "bibliographic": ""
+  },
+  {
+    "name": "Latin",
+    "alpha2": "la",
+    "alpha3": "lat",
+    "bibliographic": ""
+  },
+  {
+    "name": "Latvian",
+    "alpha2": "lv",
+    "alpha3": "lav",
+    "bibliographic": ""
+  },
+  {
+    "name": "Lezghian",
+    "alpha2": "",
+    "alpha3": "lez",
+    "bibliographic": ""
+  },
+  {
+    "name": "Limburgish, Limburger, Limburgan",
+    "alpha2": "li",
+    "alpha3": "lim",
+    "bibliographic": ""
+  },
+  {
+    "name": "Lingala",
+    "alpha2": "ln",
+    "alpha3": "lin",
+    "bibliographic": ""
+  },
+  {
+    "name": "Lithuanian",
+    "alpha2": "lt",
+    "alpha3": "lit",
+    "bibliographic": ""
+  },
+  {
+    "name": "Lojban",
+    "alpha2": "",
+    "alpha3": "jbo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Low German, Low Saxon",
+    "alpha2": "",
+    "alpha3": "nds",
+    "bibliographic": ""
+  },
+  {
+    "name": "Lower Sorbian",
+    "alpha2": "",
+    "alpha3": "dsb",
+    "bibliographic": ""
+  },
+  {
+    "name": "Lozi",
+    "alpha2": "",
+    "alpha3": "loz",
+    "bibliographic": ""
+  },
+  {
+    "name": "Luba-Katanga",
+    "alpha2": "lu",
+    "alpha3": "lub",
+    "bibliographic": ""
+  },
+  {
+    "name": "Luba-Lulua",
+    "alpha2": "",
+    "alpha3": "lua",
+    "bibliographic": ""
+  },
+  {
+    "name": "Luiseño",
+    "alpha2": "",
+    "alpha3": "lui",
+    "bibliographic": ""
+  },
+  {
+    "name": "Lule Sami",
+    "alpha2": "",
+    "alpha3": "smj",
+    "bibliographic": ""
+  },
+  {
+    "name": "Lunda",
+    "alpha2": "",
+    "alpha3": "lun",
+    "bibliographic": ""
+  },
+  {
+    "name": "Luo (Kenya and Tanzania)",
+    "alpha2": "",
+    "alpha3": "luo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Lushai",
+    "alpha2": "",
+    "alpha3": "lus",
+    "bibliographic": ""
+  },
+  {
+    "name": "Luxembourgish, Letzeburgesch",
+    "alpha2": "lb",
+    "alpha3": "ltz",
+    "bibliographic": ""
+  },
+  {
+    "name": "Maasai",
+    "alpha2": "",
+    "alpha3": "mas",
+    "bibliographic": ""
+  },
+  {
+    "name": "Macedonian",
+    "alpha2": "mk",
+    "alpha3": "mkd",
+    "bibliographic": "mac"
+  },
+  {
+    "name": "Madurese",
+    "alpha2": "",
+    "alpha3": "mad",
+    "bibliographic": ""
+  },
+  {
+    "name": "Magahi",
+    "alpha2": "",
+    "alpha3": "mag",
+    "bibliographic": ""
+  },
+  {
+    "name": "Maithili",
+    "alpha2": "",
+    "alpha3": "mai",
+    "bibliographic": ""
+  },
+  {
+    "name": "Makasar",
+    "alpha2": "",
+    "alpha3": "mak",
+    "bibliographic": ""
+  },
+  {
+    "name": "Malagasy",
+    "alpha2": "mg",
+    "alpha3": "mlg",
+    "bibliographic": ""
+  },
+  {
+    "name": "Malay",
+    "alpha2": "ms",
+    "alpha3": "msa",
+    "bibliographic": "may"
+  },
+  {
+    "name": "Malayalam",
+    "alpha2": "ml",
+    "alpha3": "mal",
+    "bibliographic": ""
+  },
+  {
+    "name": "Maltese",
+    "alpha2": "mt",
+    "alpha3": "mlt",
+    "bibliographic": ""
+  },
+  {
+    "name": "Manchu",
+    "alpha2": "",
+    "alpha3": "mnc",
+    "bibliographic": ""
+  },
+  {
+    "name": "Mandar",
+    "alpha2": "",
+    "alpha3": "mdr",
+    "bibliographic": ""
+  },
+  {
+    "name": "Mandingo",
+    "alpha2": "",
+    "alpha3": "man",
+    "bibliographic": ""
+  },
+  {
+    "name": "Manipuri",
+    "alpha2": "",
+    "alpha3": "mni",
+    "bibliographic": ""
+  },
+  {
+    "name": "Manobo languages",
+    "alpha2": "",
+    "alpha3": "mno",
+    "bibliographic": ""
+  },
+  {
+    "name": "Manx",
+    "alpha2": "gv",
+    "alpha3": "glv",
+    "bibliographic": ""
+  },
+  {
+    "name": "Mapudungun, Mapuche",
+    "alpha2": "",
+    "alpha3": "arn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Marathi",
+    "alpha2": "mr",
+    "alpha3": "mar",
+    "bibliographic": ""
+  },
+  {
+    "name": "Mari (Russia)",
+    "alpha2": "",
+    "alpha3": "chm",
+    "bibliographic": ""
+  },
+  {
+    "name": "Marshallese",
+    "alpha2": "mh",
+    "alpha3": "mah",
+    "bibliographic": ""
+  },
+  {
+    "name": "Marwari",
+    "alpha2": "",
+    "alpha3": "mwr",
+    "bibliographic": ""
+  },
+  {
+    "name": "Mayan languages",
+    "alpha2": "",
+    "alpha3": "myn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Mende",
+    "alpha2": "",
+    "alpha3": "men",
+    "bibliographic": ""
+  },
+  {
+    "name": "Mi'kmaq, Micmac",
+    "alpha2": "",
+    "alpha3": "mic",
+    "bibliographic": ""
+  },
+  {
+    "name": "Middle English (1100–1500)",
+    "alpha2": "",
+    "alpha3": "enm",
+    "bibliographic": ""
+  },
+  {
+    "name": "Middle French (c. 1400-1600)",
+    "alpha2": "",
+    "alpha3": "frm",
+    "bibliographic": ""
+  },
+  {
+    "name": "Middle High German (ca. 1050–1500)",
+    "alpha2": "",
+    "alpha3": "gmh",
+    "bibliographic": ""
+  },
+  {
+    "name": "Middle Irish (900–1200)",
+    "alpha2": "",
+    "alpha3": "mga",
+    "bibliographic": ""
+  },
+  {
+    "name": "Minangkabau",
+    "alpha2": "",
+    "alpha3": "min",
+    "bibliographic": ""
+  },
+  {
+    "name": "Mirandese",
+    "alpha2": "",
+    "alpha3": "mwl",
+    "bibliographic": ""
+  },
+  {
+    "name": "Modern Greek",
+    "alpha2": "el",
+    "alpha3": "ell",
+    "bibliographic": "gre"
+  },
+  {
+    "name": "Mohawk",
+    "alpha2": "",
+    "alpha3": "moh",
+    "bibliographic": ""
+  },
+  {
+    "name": "Moksha",
+    "alpha2": "",
+    "alpha3": "mdf",
+    "bibliographic": ""
+  },
+  {
+    "name": "Mongo",
+    "alpha2": "",
+    "alpha3": "lol",
+    "bibliographic": ""
+  },
+  {
+    "name": "Mongolian",
+    "alpha2": "mn",
+    "alpha3": "mon",
+    "bibliographic": ""
+  },
+  {
+    "name": "Mon–Khmer languages",
+    "alpha2": "",
+    "alpha3": "mkh",
+    "bibliographic": ""
+  },
+  {
+    "name": "Mossi",
+    "alpha2": "",
+    "alpha3": "mos",
+    "bibliographic": ""
+  },
+  {
+    "name": "Munda languages",
+    "alpha2": "",
+    "alpha3": "mun",
+    "bibliographic": ""
+  },
+  {
+    "name": "Māori",
+    "alpha2": "mi",
+    "alpha3": "mri",
+    "bibliographic": "mao"
+  },
+  {
+    "name": "N'Ko",
+    "alpha2": "",
+    "alpha3": "nqo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Nahuatl",
+    "alpha2": "",
+    "alpha3": "nah",
+    "bibliographic": ""
+  },
+  {
+    "name": "Nauruan",
+    "alpha2": "na",
+    "alpha3": "nau",
+    "bibliographic": ""
+  },
+  {
+    "name": "Navajo, Navaho",
+    "alpha2": "nv",
+    "alpha3": "nav",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ndonga",
+    "alpha2": "ng",
+    "alpha3": "ndo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Neapolitan",
+    "alpha2": "",
+    "alpha3": "nap",
+    "bibliographic": ""
+  },
+  {
+    "name": "Nepal Bhasa, Newari",
+    "alpha2": "",
+    "alpha3": "new",
+    "bibliographic": ""
+  },
+  {
+    "name": "Nepali",
+    "alpha2": "ne",
+    "alpha3": "nep",
+    "bibliographic": ""
+  },
+  {
+    "name": "Nias",
+    "alpha2": "",
+    "alpha3": "nia",
+    "bibliographic": ""
+  },
+  {
+    "name": "Niger–Congo languages",
+    "alpha2": "",
+    "alpha3": "nic",
+    "bibliographic": ""
+  },
+  {
+    "name": "Nilo-Saharan languages",
+    "alpha2": "",
+    "alpha3": "ssa",
+    "bibliographic": ""
+  },
+  {
+    "name": "Niuean",
+    "alpha2": "",
+    "alpha3": "niu",
+    "bibliographic": ""
+  },
+  {
+    "name": "Nogai",
+    "alpha2": "",
+    "alpha3": "nog",
+    "bibliographic": ""
+  },
+  {
+    "name": "North American Indian languages",
+    "alpha2": "",
+    "alpha3": "nai",
+    "bibliographic": ""
+  },
+  {
+    "name": "Northern Frisian",
+    "alpha2": "",
+    "alpha3": "frr",
+    "bibliographic": ""
+  },
+  {
+    "name": "Northern Ndebele",
+    "alpha2": "nd",
+    "alpha3": "nde",
+    "bibliographic": ""
+  },
+  {
+    "name": "Northern Sami",
+    "alpha2": "se",
+    "alpha3": "sme",
+    "bibliographic": ""
+  },
+  {
+    "name": "Northern Sotho, Pedi, Sepedi",
+    "alpha2": "",
+    "alpha3": "nso",
+    "bibliographic": ""
+  },
+  {
+    "name": "Norwegian",
+    "alpha2": "no",
+    "alpha3": "nor",
+    "bibliographic": ""
+  },
+  {
+    "name": "Norwegian Bokmål",
+    "alpha2": "nb",
+    "alpha3": "nob",
+    "bibliographic": ""
+  },
+  {
+    "name": "Norwegian Nynorsk",
+    "alpha2": "nn",
+    "alpha3": "nno",
+    "bibliographic": ""
+  },
+  {
+    "name": "Nubian languages",
+    "alpha2": "",
+    "alpha3": "nub",
+    "bibliographic": ""
+  },
+  {
+    "name": "Nyamwezi",
+    "alpha2": "",
+    "alpha3": "nym",
+    "bibliographic": ""
+  },
+  {
+    "name": "Nyankole",
+    "alpha2": "",
+    "alpha3": "nyn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Nyoro",
+    "alpha2": "",
+    "alpha3": "nyo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Nzima",
+    "alpha2": "",
+    "alpha3": "nzi",
+    "bibliographic": ""
+  },
+  {
+    "name": "Occitan (1500–)",
+    "alpha2": "oc",
+    "alpha3": "oci",
+    "bibliographic": ""
+  },
+  {
+    "name": "Official Aramaic, Imperial Aramaic (700 BC–300 BC)",
+    "alpha2": "",
+    "alpha3": "arc",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ojibwa",
+    "alpha2": "oj",
+    "alpha3": "oji",
+    "bibliographic": ""
+  },
+  {
+    "name": "Old English (c. 450–1100)",
+    "alpha2": "",
+    "alpha3": "ang",
+    "bibliographic": ""
+  },
+  {
+    "name": "Old French (842-c. 1400)",
+    "alpha2": "",
+    "alpha3": "fro",
+    "bibliographic": ""
+  },
+  {
+    "name": "Old High German (ca. 750–1050)",
+    "alpha2": "",
+    "alpha3": "goh",
+    "bibliographic": ""
+  },
+  {
+    "name": "Old Irish (to 900)",
+    "alpha2": "",
+    "alpha3": "sga",
+    "bibliographic": ""
+  },
+  {
+    "name": "Old Norse",
+    "alpha2": "",
+    "alpha3": "non",
+    "bibliographic": ""
+  },
+  {
+    "name": "Old Persian (ca. 600–400 BC)",
+    "alpha2": "",
+    "alpha3": "peo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Old Provençal, Old Occitan (–1500)",
+    "alpha2": "",
+    "alpha3": "pro",
+    "bibliographic": ""
+  },
+  {
+    "name": "Oriya",
+    "alpha2": "or",
+    "alpha3": "ori",
+    "bibliographic": ""
+  },
+  {
+    "name": "Oromo",
+    "alpha2": "om",
+    "alpha3": "orm",
+    "bibliographic": ""
+  },
+  {
+    "name": "Osage",
+    "alpha2": "",
+    "alpha3": "osa",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ossetian, Ossetic",
+    "alpha2": "os",
+    "alpha3": "oss",
+    "bibliographic": ""
+  },
+  {
+    "name": "Otomian languages",
+    "alpha2": "",
+    "alpha3": "oto",
+    "bibliographic": ""
+  },
+  {
+    "name": "Pahlavi, (Middle Persian)",
+    "alpha2": "",
+    "alpha3": "pal",
+    "bibliographic": ""
+  },
+  {
+    "name": "Palauan",
+    "alpha2": "",
+    "alpha3": "pau",
+    "bibliographic": ""
+  },
+  {
+    "name": "Pali",
+    "alpha2": "pi",
+    "alpha3": "pli",
+    "bibliographic": ""
+  },
+  {
+    "name": "Pampanga, Kapampangan",
+    "alpha2": "",
+    "alpha3": "pam",
+    "bibliographic": ""
+  },
+  {
+    "name": "Pangasinan",
+    "alpha2": "",
+    "alpha3": "pag",
+    "bibliographic": ""
+  },
+  {
+    "name": "Papiamento",
+    "alpha2": "",
+    "alpha3": "pap",
+    "bibliographic": ""
+  },
+  {
+    "name": "Papuan languages",
+    "alpha2": "",
+    "alpha3": "paa",
+    "bibliographic": ""
+  },
+  {
+    "name": "Pashto language, Pashto",
+    "alpha2": "ps",
+    "alpha3": "pus",
+    "bibliographic": ""
+  },
+  {
+    "name": "Persian",
+    "alpha2": "fa",
+    "alpha3": "fas",
+    "bibliographic": "per"
+  },
+  {
+    "name": "Philippine languages",
+    "alpha2": "",
+    "alpha3": "phi",
+    "bibliographic": ""
+  },
+  {
+    "name": "Phoenician",
+    "alpha2": "",
+    "alpha3": "phn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Pohnpeian",
+    "alpha2": "",
+    "alpha3": "pon",
+    "bibliographic": ""
+  },
+  {
+    "name": "Polish",
+    "alpha2": "pl",
+    "alpha3": "pol",
+    "bibliographic": ""
+  },
+  {
+    "name": "Portuguese",
+    "alpha2": "pt",
+    "alpha3": "por",
+    "bibliographic": ""
+  },
+  {
+    "name": "Prakrit",
+    "alpha2": "",
+    "alpha3": "pra",
+    "bibliographic": ""
+  },
+  {
+    "name": "Punjabi, Panjabi",
+    "alpha2": "pa",
+    "alpha3": "pan",
+    "bibliographic": ""
+  },
+  {
+    "name": "Quechua",
+    "alpha2": "qu",
+    "alpha3": "que",
+    "bibliographic": ""
+  },
+  {
+    "name": "Rajasthani",
+    "alpha2": "",
+    "alpha3": "raj",
+    "bibliographic": ""
+  },
+  {
+    "name": "Rapanui",
+    "alpha2": "",
+    "alpha3": "rap",
+    "bibliographic": ""
+  },
+  {
+    "name": "Rarotongan, Cook Islands Maori",
+    "alpha2": "",
+    "alpha3": "rar",
+    "bibliographic": ""
+  },
+  {
+    "name": "Reserved for local use",
+    "alpha2": "",
+    "alpha3": "qaa-qtz",
+    "bibliographic": ""
+  },
+  {
+    "name": "Romance languages",
+    "alpha2": "",
+    "alpha3": "roa",
+    "bibliographic": ""
+  },
+  {
+    "name": "Romanian",
+    "alpha2": "ro",
+    "alpha3": "ron",
+    "bibliographic": "rum"
+  },
+  {
+    "name": "Romansh",
+    "alpha2": "rm",
+    "alpha3": "roh",
+    "bibliographic": ""
+  },
+  {
+    "name": "Romany",
+    "alpha2": "",
+    "alpha3": "rom",
+    "bibliographic": ""
+  },
+  {
+    "name": "Rundi",
+    "alpha2": "rn",
+    "alpha3": "run",
+    "bibliographic": ""
+  },
+  {
+    "name": "Russian",
+    "alpha2": "ru",
+    "alpha3": "rus",
+    "bibliographic": ""
+  },
+  {
+    "name": "Salishan languages",
+    "alpha2": "",
+    "alpha3": "sal",
+    "bibliographic": ""
+  },
+  {
+    "name": "Samaritan Aramaic",
+    "alpha2": "",
+    "alpha3": "sam",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sami languages",
+    "alpha2": "",
+    "alpha3": "smi",
+    "bibliographic": ""
+  },
+  {
+    "name": "Samoan",
+    "alpha2": "sm",
+    "alpha3": "smo",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sandawe",
+    "alpha2": "",
+    "alpha3": "sad",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sango",
+    "alpha2": "sg",
+    "alpha3": "sag",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sanskrit",
+    "alpha2": "sa",
+    "alpha3": "san",
+    "bibliographic": ""
+  },
+  {
+    "name": "Santali",
+    "alpha2": "",
+    "alpha3": "sat",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sardinian",
+    "alpha2": "sc",
+    "alpha3": "srd",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sasak",
+    "alpha2": "",
+    "alpha3": "sas",
+    "bibliographic": ""
+  },
+  {
+    "name": "Scots",
+    "alpha2": "",
+    "alpha3": "sco",
+    "bibliographic": ""
+  },
+  {
+    "name": "Scottish Gaelic, Gaelic",
+    "alpha2": "gd",
+    "alpha3": "gla",
+    "bibliographic": ""
+  },
+  {
+    "name": "Selkup",
+    "alpha2": "",
+    "alpha3": "sel",
+    "bibliographic": ""
+  },
+  {
+    "name": "Semitic languages",
+    "alpha2": "",
+    "alpha3": "sem",
+    "bibliographic": ""
+  },
+  {
+    "name": "Serbian",
+    "alpha2": "sr",
+    "alpha3": "srp",
+    "bibliographic": ""
+  },
+  {
+    "name": "Serer",
+    "alpha2": "",
+    "alpha3": "srr",
+    "bibliographic": ""
+  },
+  {
+    "name": "Shan",
+    "alpha2": "",
+    "alpha3": "shn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Shona",
+    "alpha2": "sn",
+    "alpha3": "sna",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sichuan Yi, Nuosu",
+    "alpha2": "ii",
+    "alpha3": "iii",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sicilian",
+    "alpha2": "",
+    "alpha3": "scn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sidamo",
+    "alpha2": "",
+    "alpha3": "sid",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sign languages",
+    "alpha2": "",
+    "alpha3": "sgn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sindhi",
+    "alpha2": "sd",
+    "alpha3": "snd",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sinhalese, Sinhala",
+    "alpha2": "si",
+    "alpha3": "sin",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sino-Tibetan languages",
+    "alpha2": "",
+    "alpha3": "sit",
+    "bibliographic": ""
+  },
+  {
+    "name": "Siouan languages",
+    "alpha2": "",
+    "alpha3": "sio",
+    "bibliographic": ""
+  },
+  {
+    "name": "Skolt Sami",
+    "alpha2": "",
+    "alpha3": "sms",
+    "bibliographic": ""
+  },
+  {
+    "name": "Slave (Athapascan)",
+    "alpha2": "",
+    "alpha3": "den",
+    "bibliographic": ""
+  },
+  {
+    "name": "Slavic languages",
+    "alpha2": "",
+    "alpha3": "sla",
+    "bibliographic": ""
+  },
+  {
+    "name": "Slovak",
+    "alpha2": "sk",
+    "alpha3": "slk",
+    "bibliographic": "slo"
+  },
+  {
+    "name": "Slovenian",
+    "alpha2": "sl",
+    "alpha3": "slv",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sogdian",
+    "alpha2": "",
+    "alpha3": "sog",
+    "bibliographic": ""
+  },
+  {
+    "name": "Somali",
+    "alpha2": "so",
+    "alpha3": "som",
+    "bibliographic": ""
+  },
+  {
+    "name": "Songhay languages",
+    "alpha2": "",
+    "alpha3": "son",
+    "bibliographic": ""
+  },
+  {
+    "name": "Soninke",
+    "alpha2": "",
+    "alpha3": "snk",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sorbian languages",
+    "alpha2": "",
+    "alpha3": "wen",
+    "bibliographic": ""
+  },
+  {
+    "name": "South American Indian languages",
+    "alpha2": "",
+    "alpha3": "sai",
+    "bibliographic": ""
+  },
+  {
+    "name": "Southern Altai",
+    "alpha2": "",
+    "alpha3": "alt",
+    "bibliographic": ""
+  },
+  {
+    "name": "Southern Ndebele",
+    "alpha2": "nr",
+    "alpha3": "nbl",
+    "bibliographic": ""
+  },
+  {
+    "name": "Southern Sami",
+    "alpha2": "",
+    "alpha3": "sma",
+    "bibliographic": ""
+  },
+  {
+    "name": "Southern Sotho",
+    "alpha2": "st",
+    "alpha3": "sot",
+    "bibliographic": ""
+  },
+  {
+    "name": "Spanish",
+    "alpha2": "es",
+    "alpha3": "spa",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sranan Tongo",
+    "alpha2": "",
+    "alpha3": "srn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sukuma",
+    "alpha2": "",
+    "alpha3": "suk",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sumerian",
+    "alpha2": "",
+    "alpha3": "sux",
+    "bibliographic": ""
+  },
+  {
+    "name": "Sundanese",
+    "alpha2": "su",
+    "alpha3": "sun",
+    "bibliographic": ""
+  },
+  {
+    "name": "Susu",
+    "alpha2": "",
+    "alpha3": "sus",
+    "bibliographic": ""
+  },
+  {
+    "name": "Swahili",
+    "alpha2": "sw",
+    "alpha3": "swa",
+    "bibliographic": ""
+  },
+  {
+    "name": "Swati",
+    "alpha2": "ss",
+    "alpha3": "ssw",
+    "bibliographic": ""
+  },
+  {
+    "name": "Swedish",
+    "alpha2": "sv",
+    "alpha3": "swe",
+    "bibliographic": ""
+  },
+  {
+    "name": "Swiss German, Alemannic, Alsatian",
+    "alpha2": "",
+    "alpha3": "gsw",
+    "bibliographic": ""
+  },
+  {
+    "name": "Syriac (Northeastern Neo-Aramaic)",
+    "alpha2": "",
+    "alpha3": "syr",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tagalog",
+    "alpha2": "tl",
+    "alpha3": "tgl",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tahitian",
+    "alpha2": "ty",
+    "alpha3": "tah",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tai languages",
+    "alpha2": "",
+    "alpha3": "tai",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tajik",
+    "alpha2": "tg",
+    "alpha3": "tgk",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tamashek",
+    "alpha2": "",
+    "alpha3": "tmh",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tamil",
+    "alpha2": "ta",
+    "alpha3": "tam",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tatar",
+    "alpha2": "tt",
+    "alpha3": "tat",
+    "bibliographic": ""
+  },
+  {
+    "name": "Telugu",
+    "alpha2": "te",
+    "alpha3": "tel",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tereno",
+    "alpha2": "",
+    "alpha3": "ter",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tetum",
+    "alpha2": "",
+    "alpha3": "tet",
+    "bibliographic": ""
+  },
+  {
+    "name": "Thai",
+    "alpha2": "th",
+    "alpha3": "tha",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tibetan",
+    "alpha2": "bo",
+    "alpha3": "bod",
+    "bibliographic": "tib"
+  },
+  {
+    "name": "Tigre",
+    "alpha2": "",
+    "alpha3": "tig",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tigrinya",
+    "alpha2": "ti",
+    "alpha3": "tir",
+    "bibliographic": ""
+  },
+  {
+    "name": "Time",
+    "alpha2": "",
+    "alpha3": "tem",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tiv",
+    "alpha2": "",
+    "alpha3": "tiv",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tlingit",
+    "alpha2": "",
+    "alpha3": "tli",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tok Pisin",
+    "alpha2": "",
+    "alpha3": "tpi",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tokelau",
+    "alpha2": "",
+    "alpha3": "tkl",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tonga (Nyasa)",
+    "alpha2": "",
+    "alpha3": "tog",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tonga (Tonga Islands)",
+    "alpha2": "to",
+    "alpha3": "ton",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tsimshian",
+    "alpha2": "",
+    "alpha3": "tsi",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tsonga",
+    "alpha2": "ts",
+    "alpha3": "tso",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tswana",
+    "alpha2": "tn",
+    "alpha3": "tsn",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tumbuka",
+    "alpha2": "",
+    "alpha3": "tum",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tupian languages",
+    "alpha2": "",
+    "alpha3": "tup",
+    "bibliographic": ""
+  },
+  {
+    "name": "Turkish",
+    "alpha2": "tr",
+    "alpha3": "tur",
+    "bibliographic": ""
+  },
+  {
+    "name": "Turkish, Ottoman (1500–1928)",
+    "alpha2": "",
+    "alpha3": "ota",
+    "bibliographic": ""
+  },
+  {
+    "name": "Turkmen",
+    "alpha2": "tk",
+    "alpha3": "tuk",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tuvalu",
+    "alpha2": "",
+    "alpha3": "tvl",
+    "bibliographic": ""
+  },
+  {
+    "name": "Tuvinian",
+    "alpha2": "",
+    "alpha3": "tyv",
+    "bibliographic": ""
+  },
+  {
+    "name": "Twi",
+    "alpha2": "tw",
+    "alpha3": "twi",
+    "bibliographic": ""
+  },
+  {
+    "name": "Udmurt",
+    "alpha2": "",
+    "alpha3": "udm",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ugaritic",
+    "alpha2": "",
+    "alpha3": "uga",
+    "bibliographic": ""
+  },
+  {
+    "name": "Uighur, Uyghur",
+    "alpha2": "ug",
+    "alpha3": "uig",
+    "bibliographic": ""
+  },
+  {
+    "name": "Ukrainian",
+    "alpha2": "uk",
+    "alpha3": "ukr",
+    "bibliographic": ""
+  },
+  {
+    "name": "Umbundu",
+    "alpha2": "",
+    "alpha3": "umb",
+    "bibliographic": ""
+  },
+  {
+    "name": "Upper Sorbian",
+    "alpha2": "",
+    "alpha3": "hsb",
+    "bibliographic": ""
+  },
+  {
+    "name": "Urdu",
+    "alpha2": "ur",
+    "alpha3": "urd",
+    "bibliographic": ""
+  },
+  {
+    "name": "Uzbek",
+    "alpha2": "uz",
+    "alpha3": "uzb",
+    "bibliographic": ""
+  },
+  {
+    "name": "Vai",
+    "alpha2": "",
+    "alpha3": "vai",
+    "bibliographic": ""
+  },
+  {
+    "name": "Venda",
+    "alpha2": "ve",
+    "alpha3": "ven",
+    "bibliographic": ""
+  },
+  {
+    "name": "Vietnamese",
+    "alpha2": "vi",
+    "alpha3": "vie",
+    "bibliographic": ""
+  },
+  {
+    "name": "Volapük",
+    "alpha2": "vo",
+    "alpha3": "vol",
+    "bibliographic": ""
+  },
+  {
+    "name": "Votic",
+    "alpha2": "",
+    "alpha3": "vot",
+    "bibliographic": ""
+  },
+  {
+    "name": "Wakashan languages",
+    "alpha2": "",
+    "alpha3": "wak",
+    "bibliographic": ""
+  },
+  {
+    "name": "Walloon",
+    "alpha2": "wa",
+    "alpha3": "wln",
+    "bibliographic": ""
+  },
+  {
+    "name": "Waray-Waray",
+    "alpha2": "",
+    "alpha3": "war",
+    "bibliographic": ""
+  },
+  {
+    "name": "Washo",
+    "alpha2": "",
+    "alpha3": "was",
+    "bibliographic": ""
+  },
+  {
+    "name": "Welsh",
+    "alpha2": "cy",
+    "alpha3": "cym",
+    "bibliographic": "wel"
+  },
+  {
+    "name": "Western Frisian",
+    "alpha2": "fy",
+    "alpha3": "fry",
+    "bibliographic": ""
+  },
+  {
+    "name": "Wolaytta, Wolaitta",
+    "alpha2": "",
+    "alpha3": "wal",
+    "bibliographic": ""
+  },
+  {
+    "name": "Wolof",
+    "alpha2": "wo",
+    "alpha3": "wol",
+    "bibliographic": ""
+  },
+  {
+    "name": "Xhosa",
+    "alpha2": "xh",
+    "alpha3": "xho",
+    "bibliographic": ""
+  },
+  {
+    "name": "Yakut",
+    "alpha2": "",
+    "alpha3": "sah",
+    "bibliographic": ""
+  },
+  {
+    "name": "Yao",
+    "alpha2": "",
+    "alpha3": "yao",
+    "bibliographic": ""
+  },
+  {
+    "name": "Yapese",
+    "alpha2": "",
+    "alpha3": "yap",
+    "bibliographic": ""
+  },
+  {
+    "name": "Yiddish",
+    "alpha2": "yi",
+    "alpha3": "yid",
+    "bibliographic": ""
+  },
+  {
+    "name": "Yoruba",
+    "alpha2": "yo",
+    "alpha3": "yor",
+    "bibliographic": ""
+  },
+  {
+    "name": "Yupik languages",
+    "alpha2": "",
+    "alpha3": "ypk",
+    "bibliographic": ""
+  },
+  {
+    "name": "Zande languages",
+    "alpha2": "",
+    "alpha3": "znd",
+    "bibliographic": ""
+  },
+  {
+    "name": "Zapotec",
+    "alpha2": "",
+    "alpha3": "zap",
+    "bibliographic": ""
+  },
+  {
+    "name": "Zaza, Dimili, Dimli, Kirdki, Kirmanjki, Zazaki",
+    "alpha2": "",
+    "alpha3": "zza",
+    "bibliographic": ""
+  },
+  {
+    "name": "Zenaga",
+    "alpha2": "",
+    "alpha3": "zen",
+    "bibliographic": ""
+  },
+  {
+    "name": "Zhuang, Chuang",
+    "alpha2": "za",
+    "alpha3": "zha",
+    "bibliographic": ""
+  },
+  {
+    "name": "Zulu",
+    "alpha2": "zu",
+    "alpha3": "zul",
+    "bibliographic": ""
+  },
+  {
+    "name": "Zuni",
+    "alpha2": "",
+    "alpha3": "zun",
+    "bibliographic": ""
+  }
+]
