@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Subler Linux
+Comment=Edit MP4 tracks, subtitles and metadata
+Exec=subler-linux %f
+Icon=io.github.sublerlinux.Subler
+Terminal=false
+Categories=AudioVideo;AudioVideoEditing;
+MimeType=video/mp4;video/x-matroska;video/quicktime;
+StartupNotify=true

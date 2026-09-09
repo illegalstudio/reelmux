@@ -1,0 +1,22 @@
+.heading { font-weight: 700; font-size: 15px; }
+.brand-icon { color: #9076e8; }
+.badge { font-size: 9px; font-weight: 800; letter-spacing: 1px; opacity: 0.6; }
+.hero-title { font-size: 30px; font-weight: 800; letter-spacing: -0.7px; }
+.hero-icon { color: #9076e8; margin-bottom: 8px; }
+.document-title { font-size: 22px; font-weight: 750; }
+.section-title { font-size: 17px; font-weight: 700; }
+.field-label { font-size: 12px; font-weight: 600; }
+.track-title { font-weight: 600; }
+.muted { opacity: 0.67; font-size: 12px; }
+.card { border: 1px solid alpha(currentColor, 0.13); border-radius: 10px; }
+.tracks-table { border-radius: 10px; }
+.tracks-table header { font-size: 11px; font-weight: 600; }
+.tracks-table entry { padding: 5px; min-height: 24px; }
+.tracks-table dropdown button { padding: 4px 7px; min-height: 26px; }
+.pill { border-radius: 24px; padding: 12px 28px; }
+.footer { border-top: 1px solid alpha(currentColor, 0.10); padding-top: 12px; }
+button.suggested-action { background: #7759ce; color: white; }
+button.suggested-action:hover { background: #896ce0; }
+button.suggested-action:disabled { background: alpha(#7759ce, 0.3); color: alpha(currentColor, 0.4); }
+progressbar progress { background: #9076e8; }
+entry.error { outline: 1px solid #e06060; }

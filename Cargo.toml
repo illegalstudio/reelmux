@@ -5,9 +5,10 @@ edition = "2024"
 rust-version = "1.92"
 description = "A Linux MP4 track and metadata editor inspired by Subler"
 license = "GPL-2.0-only"
+default-run = "subler-linux"
 
 [features]
-default = []
+default = ["gui"]
 gui = ["dep:gtk"]
 
 [dependencies]
