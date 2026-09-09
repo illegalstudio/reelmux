@@ -15,6 +15,10 @@ use std::{
 use subler_linux::{
     language,
     media::{self, AudioMode, Document, ExportEvent, Track},
+    metadata::{
+        Artwork, Client as MetadataClient, MediaKind, MetadataResult, Provider, SearchHit,
+        SearchQuery,
+    },
 };
 
 struct Ui {
@@ -38,6 +42,10 @@ struct Ui {
     fields: Vec<(&'static str, gtk::Entry)>,
     description: gtk::TextView,
     chapters: gtk::Label,
+    artwork: gtk::Picture,
+    artwork_caption: gtk::Label,
+    imported_details: gtk::Label,
+    metadata_browser: RefCell<Option<Rc<MetadataBrowser>>>,
 }
 
 fn label(text: &str, class: &str) -> gtk::Label {
@@ -51,6 +59,446 @@ fn margins(w: &impl IsA<gtk::Widget>, n: i32) {
     w.set_margin_bottom(n);
     w.set_margin_start(n);
     w.set_margin_end(n);
+}
+
+struct MetadataBrowser {
+    window: gtk::Window,
+    owner: std::rc::Weak<Ui>,
+    provider: gtk::DropDown,
+    kind: gtk::DropDown,
+    term: gtk::Entry,
+    language: gtk::Entry,
+    country: gtk::Entry,
+    season: gtk::Entry,
+    episode: gtk::Entry,
+    search: gtk::Button,
+    import: gtk::Button,
+    results: gtk::ListBox,
+    status: gtk::Label,
+    spinner: gtk::Spinner,
+    hits: RefCell<Vec<SearchHit>>,
+    query: RefCell<Option<SearchQuery>>,
+    selected: Cell<Option<usize>>,
+    busy: Cell<bool>,
+}
+
+impl MetadataBrowser {
+    fn new(owner: &Rc<Ui>) -> Rc<Self> {
+        let window = gtk::Window::builder()
+            .title("Importa metadati")
+            .transient_for(&owner.window)
+            .modal(true)
+            .default_width(760)
+            .default_height(650)
+            .build();
+        let root = gtk::Box::new(gtk::Orientation::Vertical, 14);
+        margins(&root, 20);
+        root.append(&label(
+            "Cerca film e serie nei provider di Subler",
+            "section-title",
+        ));
+        let form = gtk::Grid::builder()
+            .column_spacing(10)
+            .row_spacing(8)
+            .build();
+        let provider = gtk::DropDown::from_strings(
+            &Provider::ALL
+                .iter()
+                .map(|provider| provider.label())
+                .collect::<Vec<_>>(),
+        );
+        let kind = gtk::DropDown::from_strings(&["Film", "Serie TV"]);
+        let term = gtk::Entry::new();
+        term.set_hexpand(true);
+        let language = gtk::Entry::new();
+        language.set_text("it-IT");
+        language.set_width_chars(8);
+        let country = gtk::Entry::new();
+        country.set_text("IT");
+        country.set_width_chars(4);
+        let season = gtk::Entry::new();
+        season.set_width_chars(4);
+        season.set_input_purpose(gtk::InputPurpose::Digits);
+        let episode = gtk::Entry::new();
+        episode.set_width_chars(4);
+        episode.set_input_purpose(gtk::InputPurpose::Digits);
+        if let Some(doc) = owner.document.borrow().as_ref() {
+            let title = doc
+                .metadata
+                .get("show")
+                .or_else(|| doc.metadata.get("title"))
+                .cloned()
+                .unwrap_or_else(|| {
+                    doc.path
+                        .file_stem()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .into_owned()
+                });
+            term.set_text(&title);
+            if doc
+                .metadata
+                .get("show")
+                .is_some_and(|value| !value.is_empty())
+            {
+                kind.set_selected(1);
+            }
+            season.set_text(
+                doc.metadata
+                    .get("season_number")
+                    .map(String::as_str)
+                    .unwrap_or(""),
+            );
+            episode.set_text(
+                doc.metadata
+                    .get("episode_sort")
+                    .map(String::as_str)
+                    .unwrap_or(""),
+            );
+        }
+        for (row, title, widget) in [
+            (0, "Provider", provider.clone().upcast::<gtk::Widget>()),
+            (1, "Tipo", kind.clone().upcast()),
+            (2, "Titolo", term.clone().upcast()),
+            (3, "Lingua", language.clone().upcast()),
+            (4, "Paese", country.clone().upcast()),
+            (5, "Stagione", season.clone().upcast()),
+            (6, "Episodio", episode.clone().upcast()),
+        ] {
+            form.attach(&label(title, "field-label"), 0, row, 1, 1);
+            form.attach(&widget, 1, row, 1, 1);
+        }
+        root.append(&form);
+        let credentials = label(
+            "TMDB: TMDB_API_TOKEN o TMDB_API_KEY. TVDB: TVDB_API_KEY e, se richiesto, TVDB_PIN.",
+            "muted",
+        );
+        credentials.set_wrap(true);
+        root.append(&credentials);
+        let credits_row = gtk::Box::new(gtk::Orientation::Horizontal, 12);
+        let tmdb_icon = gio::BytesIcon::new(&glib::Bytes::from_static(include_bytes!(
+            "../data/tmdb-logo.svg"
+        )));
+        let tmdb_logo = gtk::Image::from_gicon(&tmdb_icon);
+        tmdb_logo.set_pixel_size(92);
+        tmdb_logo.set_tooltip_text(Some("Logo ufficiale TMDB"));
+        credits_row.append(&tmdb_logo);
+        let credits = gtk::Label::new(None);
+        credits.set_xalign(0.0);
+        credits.set_wrap(true);
+        credits.set_hexpand(true);
+        credits.set_markup(
+            "<small>This product uses the TMDB API but is not endorsed or certified by TMDB. Metadati TheTVDB: <a href=\"https://thetvdb.com/\">thetvdb.com</a>.</small>",
+        );
+        credits_row.append(&credits);
+        root.append(&credits_row);
+        let action_row = gtk::Box::new(gtk::Orientation::Horizontal, 8);
+        let search = gtk::Button::with_label("Cerca");
+        search.add_css_class("suggested-action");
+        let spinner = gtk::Spinner::new();
+        action_row.append(&search);
+        action_row.append(&spinner);
+        root.append(&action_row);
+        let results = gtk::ListBox::new();
+        results.set_selection_mode(gtk::SelectionMode::Single);
+        results.add_css_class("boxed-list");
+        let scroll = gtk::ScrolledWindow::builder()
+            .vexpand(true)
+            .min_content_height(240)
+            .child(&results)
+            .build();
+        root.append(&scroll);
+        let status = label("Imposta la ricerca e scegli un risultato.", "muted");
+        status.set_wrap(true);
+        root.append(&status);
+        let footer = gtk::Box::new(gtk::Orientation::Horizontal, 8);
+        footer.set_halign(gtk::Align::End);
+        let cancel = gtk::Button::with_label("Chiudi");
+        let import = gtk::Button::with_label("Importa metadati e locandina");
+        import.add_css_class("suggested-action");
+        import.set_sensitive(false);
+        footer.append(&cancel);
+        footer.append(&import);
+        root.append(&footer);
+        window.set_child(Some(&root));
+        let browser = Rc::new(Self {
+            window,
+            owner: Rc::downgrade(owner),
+            provider,
+            kind,
+            term,
+            language,
+            country,
+            season,
+            episode,
+            search,
+            import,
+            results,
+            status,
+            spinner,
+            hits: RefCell::new(Vec::new()),
+            query: RefCell::new(None),
+            selected: Cell::new(None),
+            busy: Cell::new(false),
+        });
+        let weak = Rc::downgrade(&browser);
+        browser.kind.connect_selected_notify(move |kind| {
+            if let Some(browser) = weak.upgrade() {
+                let tv = kind.selected() == 1;
+                browser.season.set_sensitive(tv);
+                browser.episode.set_sensitive(tv);
+            }
+        });
+        let tv = browser.kind.selected() == 1;
+        browser.season.set_sensitive(tv);
+        browser.episode.set_sensitive(tv);
+        let weak = Rc::downgrade(&browser);
+        browser.results.connect_row_selected(move |_, row| {
+            if let Some(browser) = weak.upgrade() {
+                browser
+                    .selected
+                    .set(row.and_then(|row| usize::try_from(row.index()).ok()));
+                browser
+                    .import
+                    .set_sensitive(!browser.busy.get() && row.is_some());
+            }
+        });
+        let weak = Rc::downgrade(&browser);
+        browser.search.connect_clicked(move |_| {
+            if let Some(browser) = weak.upgrade() {
+                browser.start_search();
+            }
+        });
+        let weak = Rc::downgrade(&browser);
+        browser.term.connect_activate(move |_| {
+            if let Some(browser) = weak.upgrade() {
+                browser.start_search();
+            }
+        });
+        let weak = Rc::downgrade(&browser);
+        browser.import.connect_clicked(move |_| {
+            if let Some(browser) = weak.upgrade() {
+                browser.start_import();
+            }
+        });
+        let weak = Rc::downgrade(&browser);
+        cancel.connect_clicked(move |_| {
+            if let Some(browser) = weak.upgrade()
+                && !browser.busy.get()
+            {
+                browser.window.close();
+            }
+        });
+        browser.window.present();
+        browser
+    }
+
+    fn set_busy(&self, busy: bool) {
+        self.busy.set(busy);
+        self.window.set_deletable(!busy);
+        self.search.set_sensitive(!busy);
+        self.import
+            .set_sensitive(!busy && self.selected.get().is_some());
+        if busy {
+            self.spinner.start();
+        } else {
+            self.spinner.stop();
+        }
+        if let Some(owner) = self.owner.upgrade() {
+            owner.set_busy(busy);
+        }
+    }
+
+    fn optional_number(entry: &gtk::Entry, name: &str) -> Result<Option<u32>> {
+        let text = entry.text();
+        let text = text.trim();
+        if text.is_empty() {
+            Ok(None)
+        } else {
+            text.parse()
+                .map(Some)
+                .map_err(|_| anyhow::anyhow!("{name} deve essere un numero intero"))
+        }
+    }
+
+    fn current_query(&self) -> Result<SearchQuery> {
+        let provider = Provider::ALL
+            .get(self.provider.selected() as usize)
+            .copied()
+            .unwrap_or(Provider::AppleTv);
+        Ok(SearchQuery {
+            provider,
+            kind: if self.kind.selected() == 1 {
+                MediaKind::TvShow
+            } else {
+                MediaKind::Movie
+            },
+            term: self.term.text().into(),
+            language: self.language.text().into(),
+            country: self.country.text().into(),
+            season: Self::optional_number(&self.season, "Stagione")?,
+            episode: Self::optional_number(&self.episode, "Episodio")?,
+        })
+    }
+
+    fn start_search(self: &Rc<Self>) {
+        if self.busy.get() {
+            return;
+        }
+        let query = match self.current_query() {
+            Ok(query) => query,
+            Err(error) => {
+                if let Some(owner) = self.owner.upgrade() {
+                    owner.error("Ricerca non valida", error);
+                }
+                return;
+            }
+        };
+        self.set_busy(true);
+        self.status
+            .set_text(&format!("Ricerca su {}…", query.provider));
+        self.selected.set(None);
+        self.import.set_sensitive(false);
+        let (tx, rx) = mpsc::channel();
+        let worker_query = query.clone();
+        thread::spawn(move || {
+            let _ = tx.send(MetadataClient::default().search(&worker_query));
+        });
+        let weak = Rc::downgrade(self);
+        glib::timeout_add_local(Duration::from_millis(50), move || {
+            let Some(browser) = weak.upgrade() else {
+                return glib::ControlFlow::Break;
+            };
+            match rx.try_recv() {
+                Ok(result) => {
+                    browser.set_busy(false);
+                    match result {
+                        Ok(hits) => browser.display_hits(query.clone(), hits),
+                        Err(error) => {
+                            browser.status.set_text("Ricerca non riuscita.");
+                            if let Some(owner) = browser.owner.upgrade() {
+                                owner.error(
+                                    "Ricerca dei metadati non riuscita",
+                                    format!("{error:#}"),
+                                );
+                            }
+                        }
+                    }
+                    glib::ControlFlow::Break
+                }
+                Err(mpsc::TryRecvError::Disconnected) => {
+                    browser.set_busy(false);
+                    browser.status.set_text("Ricerca interrotta.");
+                    glib::ControlFlow::Break
+                }
+                Err(mpsc::TryRecvError::Empty) => glib::ControlFlow::Continue,
+            }
+        });
+    }
+
+    fn display_hits(&self, query: SearchQuery, hits: Vec<SearchHit>) {
+        while let Some(child) = self.results.first_child() {
+            self.results.remove(&child);
+        }
+        *self.query.borrow_mut() = Some(query);
+        *self.hits.borrow_mut() = hits;
+        for hit in self.hits.borrow().iter() {
+            let row = gtk::Box::new(gtk::Orientation::Vertical, 4);
+            margins(&row, 10);
+            let title = label(&hit.title, "heading");
+            title.set_wrap(true);
+            row.append(&title);
+            if !hit.subtitle.is_empty() {
+                row.append(&label(&hit.subtitle, "muted"));
+            }
+            if !hit.overview.is_empty() {
+                let overview = label(&hit.overview, "muted");
+                overview.set_wrap(true);
+                overview.set_lines(2);
+                overview.set_ellipsize(gtk::pango::EllipsizeMode::End);
+                row.append(&overview);
+            }
+            self.results.append(&row);
+        }
+        let count = self.hits.borrow().len();
+        self.status.set_text(if count == 0 {
+            "Nessun risultato. Prova un altro titolo, paese o provider."
+        } else {
+            "Seleziona un risultato da importare."
+        });
+        if count > 0
+            && let Some(row) = self.results.first_child().and_downcast::<gtk::ListBoxRow>()
+        {
+            self.results.select_row(Some(&row));
+        }
+    }
+
+    fn start_import(self: &Rc<Self>) {
+        if self.busy.get() {
+            return;
+        }
+        let Some(query) = self.query.borrow().clone() else {
+            return;
+        };
+        let Some(hit) = self
+            .selected
+            .get()
+            .and_then(|index| self.hits.borrow().get(index).cloned())
+        else {
+            return;
+        };
+        self.set_busy(true);
+        self.status
+            .set_text("Caricamento dei dettagli e della locandina…");
+        let provider = hit.provider;
+        let (tx, rx) = mpsc::channel();
+        thread::spawn(move || {
+            let client = MetadataClient::default();
+            let result = client.resolve(&hit, &query).and_then(|metadata| {
+                let artwork = client.download_artwork(&metadata)?;
+                Ok((metadata, artwork))
+            });
+            let _ = tx.send(result);
+        });
+        let weak = Rc::downgrade(self);
+        glib::timeout_add_local(Duration::from_millis(50), move || {
+            let Some(browser) = weak.upgrade() else {
+                return glib::ControlFlow::Break;
+            };
+            match rx.try_recv() {
+                Ok(result) => {
+                    browser.set_busy(false);
+                    match result {
+                        Ok((metadata, artwork)) => {
+                            if let Some(owner) = browser.owner.upgrade() {
+                                owner.apply_imported_metadata(metadata, artwork);
+                                owner.status.set_text(&format!(
+                                    "Metadati importati da {provider}. Esporta per salvarli nel file."
+                                ));
+                            }
+                            browser.window.close();
+                        }
+                        Err(error) => {
+                            browser.status.set_text("Importazione non riuscita.");
+                            if let Some(owner) = browser.owner.upgrade() {
+                                owner.error(
+                                    "Importazione dei metadati non riuscita",
+                                    format!("{error:#}"),
+                                );
+                            }
+                        }
+                    }
+                    glib::ControlFlow::Break
+                }
+                Err(mpsc::TryRecvError::Disconnected) => {
+                    browser.set_busy(false);
+                    browser.status.set_text("Importazione interrotta.");
+                    glib::ControlFlow::Break
+                }
+                Err(mpsc::TryRecvError::Empty) => glib::ControlFlow::Continue,
+            }
+        });
+    }
 }
 
 impl Ui {
@@ -166,7 +614,23 @@ impl Ui {
         let meta = gtk::Box::new(gtk::Orientation::Vertical, 14);
         meta.set_size_request(280, -1);
         meta.set_margin_start(16);
-        meta.append(&label("Metadati", "section-title"));
+        let metadata_bar = gtk::Box::new(gtk::Orientation::Horizontal, 8);
+        let metadata_title = label("Metadati", "section-title");
+        metadata_title.set_hexpand(true);
+        metadata_bar.append(&metadata_title);
+        let metadata_search = gtk::Button::with_label("Cerca online…");
+        metadata_search.set_tooltip_text(Some("Importa metadati e locandina (Ctrl+M)"));
+        metadata_bar.append(&metadata_search);
+        meta.append(&metadata_bar);
+        let artwork = gtk::Picture::new();
+        artwork.set_size_request(-1, 190);
+        artwork.set_content_fit(gtk::ContentFit::Contain);
+        artwork.set_can_shrink(true);
+        artwork.add_css_class("card");
+        meta.append(&artwork);
+        let artwork_caption = label("Nessuna locandina importata", "muted");
+        artwork_caption.set_wrap(true);
+        meta.append(&artwork_caption);
         let mut fields = Vec::new();
         for (key, title, placeholder) in [
             ("title", "Titolo", "Titolo del film o dell’episodio"),
@@ -201,6 +665,10 @@ impl Ui {
             .build();
         scroll.add_css_class("card");
         meta.append(&scroll);
+        let imported_details = label("", "muted");
+        imported_details.set_wrap(true);
+        imported_details.set_selectable(true);
+        meta.append(&imported_details);
         let scroll = gtk::ScrolledWindow::builder()
             .hscrollbar_policy(gtk::PolicyType::Never)
             .child(&meta)
@@ -247,6 +715,10 @@ impl Ui {
             fields,
             description,
             chapters,
+            artwork,
+            artwork_caption,
+            imported_details,
+            metadata_browser: RefCell::new(None),
         });
         ui.add_columns(&table);
         for (button, action) in [
@@ -262,6 +734,12 @@ impl Ui {
                 }
             });
         }
+        let weak = Rc::downgrade(&ui);
+        metadata_search.connect_clicked(move |_| {
+            if let Some(ui) = weak.upgrade() {
+                ui.show_metadata_browser();
+            }
+        });
         let weak = Rc::downgrade(&ui);
         ui.cancel_button.connect_clicked(move |_| {
             if let Some(ui) = weak.upgrade() {
@@ -321,12 +799,17 @@ impl Ui {
             ("open", "<Primary>o"),
             ("subtitle", "<Primary>i"),
             ("export", "<Primary><Shift>s"),
+            ("metadata", "<Primary>m"),
         ] {
             let action = gio::SimpleAction::new(name, None);
             let weak = Rc::downgrade(&ui);
             action.connect_activate(move |_, _| {
                 if let Some(ui) = weak.upgrade() {
-                    ui.choose(name);
+                    if name == "metadata" {
+                        ui.show_metadata_browser();
+                    } else {
+                        ui.choose(name);
+                    }
                 }
             });
             ui.window.add_action(&action);
@@ -428,6 +911,72 @@ impl Ui {
             .buttons(["OK"])
             .build()
             .show(Some(&self.window));
+    }
+    fn show_metadata_browser(self: &Rc<Self>) {
+        if self.busy.get() || self.document.borrow().is_none() {
+            return;
+        }
+        if let Some(browser) = self.metadata_browser.borrow().as_ref()
+            && browser.window.is_visible()
+        {
+            browser.window.present();
+            return;
+        }
+        let browser = MetadataBrowser::new(self);
+        *self.metadata_browser.borrow_mut() = Some(browser);
+    }
+    fn apply_imported_metadata(
+        self: &Rc<Self>,
+        metadata: MetadataResult,
+        artwork: Option<Artwork>,
+    ) {
+        let Some(mut doc) = self.document.borrow().clone() else {
+            return;
+        };
+        doc.apply_metadata(metadata, artwork);
+        self.display_document(doc);
+        self.mark_dirty();
+    }
+    fn refresh_import_preview(&self, doc: &Document) {
+        if let Some(artwork) = doc.artwork.as_ref() {
+            let bytes = glib::Bytes::from(&artwork.bytes);
+            match gdk::Texture::from_bytes(&bytes) {
+                Ok(texture) => {
+                    self.artwork.set_paintable(Some(&texture));
+                    self.artwork_caption.set_text(&format!(
+                        "Locandina da {} · {:.1} MB",
+                        artwork.provider,
+                        artwork.bytes.len() as f64 / 1_000_000.0
+                    ));
+                }
+                Err(error) => {
+                    self.artwork.set_paintable(gdk::Paintable::NONE);
+                    self.artwork_caption
+                        .set_text(&format!("Anteprima non disponibile: {error}"));
+                }
+            }
+        } else {
+            self.artwork.set_paintable(gdk::Paintable::NONE);
+            self.artwork_caption.set_text("Nessuna locandina importata");
+        }
+        let details = [
+            ("Provider", "provider"),
+            ("Regia", "director"),
+            ("Cast", "cast"),
+            ("Studio", "studio"),
+            ("Rete", "network"),
+            ("Crediti", "metadata_attribution"),
+        ]
+        .into_iter()
+        .filter_map(|(label, key)| {
+            doc.metadata
+                .get(key)
+                .filter(|value| !value.is_empty())
+                .map(|value| format!("{label}: {value}"))
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+        self.imported_details.set_text(&details);
     }
     fn request_cancel(&self) {
         if let Some(cancel) = self.cancel.borrow().as_ref() {
@@ -610,6 +1159,7 @@ impl Ui {
             "{} capitoli originali da conservare",
             doc.chapters.len()
         ));
+        self.refresh_import_preview(&doc);
         let unsupported = doc.tracks.iter().any(|t| t.unsupported.is_some());
         let count = doc.tracks.len();
         *self.document.borrow_mut() = Some(doc);
@@ -1048,6 +1598,37 @@ mod tests {
             ui.document.borrow().as_ref().unwrap().metadata["title"],
             "Viaggio notturno - Prova GUI"
         );
+        ui.show_metadata_browser();
+        let browser = ui.metadata_browser.borrow().as_ref().unwrap().clone();
+        assert_eq!(browser.provider.selected(), 0);
+        assert_eq!(browser.kind.selected(), 0);
+        assert_eq!(browser.term.text(), "Viaggio notturno - Prova GUI");
+        assert!(!browser.season.is_sensitive());
+        browser.kind.set_selected(1);
+        assert!(browser.season.is_sensitive());
+        if let Some(path) = std::env::var_os("SUBLER_TEST_BROWSER_SCREENSHOT") {
+            let mut frames = 0;
+            pump_until(|| {
+                frames += 1;
+                frames > 20
+            });
+            let paintable = gtk::WidgetPaintable::new(Some(&browser.window));
+            let snapshot = gtk::Snapshot::new();
+            paintable.snapshot(
+                &snapshot,
+                browser.window.width() as f64,
+                browser.window.height() as f64,
+            );
+            let node = snapshot.to_node().expect("browser must render");
+            browser
+                .window
+                .renderer()
+                .unwrap()
+                .render_texture(&node, None)
+                .save_to_png(path)
+                .unwrap();
+        }
+        browser.window.close();
         // Capture only our widget tree, independent of overlapping desktop windows.
         if let Some(path) = std::env::var_os("SUBLER_TEST_SCREENSHOT") {
             let mut frames = 0;
