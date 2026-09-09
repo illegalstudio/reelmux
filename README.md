@@ -1,0 +1,134 @@
+# Subler Linux
+
+Un editor MP4 per Linux scritto in Rust e GTK4, ispirato a
+[Subler](https://subler.org/). Primo prototipo funzionante, con interfaccia in italiano.
+
+## Funzioni disponibili
+
+- Apertura di MP4, M4V, MOV e MKV, anche trascinando un file nella finestra.
+- Elenco delle tracce con codec, risoluzione o canali, nome e lingua modificabili.
+- Inclusione ed esclusione delle tracce; flag predefinito e sottotitoli forzati.
+- Aggiunta di SRT esterni e conversione dei sottotitoli testuali in `mov_text`.
+- Copia del video e scelta tra copia audio e conversione AAC a 192 kbit/s.
+- Modifica di titolo, data, genere, descrizione, serie, stagione ed episodio.
+- Trasferimento dei capitoli originali.
+- Esportazione in background, avanzamento, annullamento e verifica delle tracce.
+- Interfaccia a riga di comando per ispezione ed esportazione.
+
+L'esportazione produce un nuovo file. Una destinazione esistente viene rifiutata.
+Il risultato viene scritto su un file temporaneo nella cartella di destinazione,
+verificato e pubblicato senza sovrascrivere altri file. Se FFmpeg fallisce o
+l'operazione viene annullata, il temporaneo viene rimosso.
+
+## Requisiti e avvio
+
+- Rust 1.92 o successivo e Cargo.
+- GTK4 4.10 o successivo, con header di sviluppo e `pkg-config`.
+- `ffmpeg` e `ffprobe` nel `PATH`.
+
+Su Arch Linux:
+
+```sh
+sudo pacman -S --needed rust gtk4 pkgconf ffmpeg
+```
+
+Su Ubuntu 24.04 o successivo:
+
+```sh
+sudo apt install build-essential pkg-config libgtk-4-dev ffmpeg
+```
+
+Su Ubuntu serve inoltre una toolchain Rust recente, ad esempio tramite rustup.
+
+```sh
+cargo run --locked
+cargo run --locked -- /percorso/al/video.mkv
+```
+
+Scorciatoie: `Ctrl+O` apre un file, `Ctrl+I` aggiunge un SRT,
+`Ctrl+Shift+S` esporta un MP4.
+
+Per le lingue sono accettati codici a due o tre lettere: `it` / `ita`,
+`en` / `eng`, `de` / `deu` / `ger`. Un valore vuoto equivale a `und`.
+Le caselle nella colonna **Usa** determinano le tracce da esportare;
+l'evidenziazione delle righe nella tabella non cambia questa scelta.
+
+## Prova con file sintetici
+
+```sh
+python scripts/create_demo.py
+cargo run --locked -- artifacts/demo/Viaggio-notturno.mkv
+```
+
+Il generatore crea un video di prova e un SRT, senza utilizzare file personali.
+Il sottotitolo può essere aggiunto dalla GUI o trascinato nella finestra aperta.
+
+## Riga di comando
+
+```sh
+cargo run --locked -- inspect video.mkv
+cargo run --locked -- export video.mkv risultato.mp4 --title "Titolo" --subtitle italiano.srt --language ita
+cargo run --locked -- export video.mkv risultato.mp4 --exclude 2 --aac
+```
+
+`--exclude` usa l'indice originale della traccia, visibile nell'output di `inspect`.
+`--aac` converte tutte le tracce audio incluse. `--subtitle` è ripetibile.
+Per compilare soltanto la CLI e il motore, senza dipendenze GTK:
+
+```sh
+cargo build --locked --no-default-features
+```
+
+## Verifiche
+
+```sh
+cargo fmt --check
+cargo clippy --locked --all-targets -- -D warnings
+cargo test --locked
+```
+
+I test d'integrazione richiedono FFmpeg. Generano file locali temporanei e verificano
+metadati, capitoli, lingue, sottotitoli forzati, esclusione delle tracce, conversione
+AAC, annullamento e rifiuto della sovrascrittura. La copia audio/video viene
+confrontata tramite hash SHA-256 dei pacchetti compressi. Il motore può essere
+verificato senza un display e con `--no-default-features`.
+
+Per verificare anche i controlli GTK in una sessione grafica:
+
+```sh
+cargo test --locked --bin subler-linux gui_roundtrip -- --ignored --test-threads=1
+```
+
+Questo test apre una finestra con un video sintetico, modifica titolo, lingua,
+inclusione e flag dei sottotitoli, quindi esporta e controlla il risultato.
+Richiede anche Python 3. Impostando `SUBLER_TEST_SCREENSHOT` a un percorso PNG
+si può acquisire la sola finestra del test, senza catturare il resto del desktop.
+
+## Limiti del prototipo
+
+- Nessuna ricerca TMDB/TVDB, modifica dei capitoli, aggiunta di copertine o coda batch.
+- I sottotitoli bitmap richiedono OCR esterno. Gli stili ASS/SSA possono essere persi
+  nella conversione in testo MP4.
+- Nessuna promessa di conservazione completa degli atom MP4 proprietari, dei legami
+  tra tracce o dei dettagli HDR/Dolby Vision. Servono ulteriori verifiche dedicate.
+- FFmpeg copia i metadati che riconosce; i campi esposti nella GUI sono scritti
+  esplicitamente. Modificare i tag richiede la riscrittura del contenitore.
+- I codec video previsti per la copia sono H.264, HEVC, AV1, MPEG-4 e VP9.
+  Una traccia non supportata resta visibile ma viene esclusa. L'audio diverso da
+  AAC, AC3, EAC3, ALAC e MP3 viene proposto per la conversione AAC.
+- Le modifiche non esportate rimangono solo in memoria. La chiusura o l'apertura di
+  un altro documento richiede conferma se ci sono modifiche pendenti.
+- La verifica dopo l'esportazione controlla la leggibilità e il numero di tracce;
+  non sostituisce una validazione completa su ogni lettore o dispositivo.
+
+## Struttura
+
+- `src/media.rs`: modello del documento e operazioni FFmpeg/ffprobe, senza GTK.
+- `src/language.rs`: normalizzazione dei codici lingua.
+- `src/ui.rs`: interfaccia GTK4 e comunicazione con i worker.
+- `src/main.rs`: avvio GUI e CLI.
+- `data/`: stile, icona e tabella delle lingue.
+- `tests/`: test sui file multimediali.
+
+Licenza GPL-2.0-only. Crediti e provenienza del materiale recuperato da Subler
+in [THIRD_PARTY.md](THIRD_PARTY.md).
