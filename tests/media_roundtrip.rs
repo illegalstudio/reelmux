@@ -244,6 +244,7 @@ fn imported_metadata_and_poster_are_written_to_mp4() {
             provider: Provider::Tmdb,
             fields,
             artwork_url: Some("https://image.example/poster.jpg".into()),
+            artworks: Vec::new(),
             source_url: Some("https://www.themoviedb.org/movie/42".into()),
             attribution: Provider::Tmdb.attribution().into(),
         },

@@ -1,4 +1,9 @@
-use std::{collections::BTreeMap, env, fmt, str::FromStr, time::Duration};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    env, fmt,
+    str::FromStr,
+    time::Duration,
+};
 
 use anyhow::{Context, Result, bail, ensure};
 use serde::{Deserialize, Serialize};
@@ -143,8 +148,36 @@ pub struct MetadataResult {
     pub provider: Provider,
     pub fields: BTreeMap<String, String>,
     pub artwork_url: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub artworks: Vec<ArtworkCandidate>,
     pub source_url: Option<String>,
     pub attribution: String,
+}
+
+impl MetadataResult {
+    pub fn artwork_candidates(&self) -> Vec<ArtworkCandidate> {
+        if !self.artworks.is_empty() {
+            return self.artworks.clone();
+        }
+        self.artwork_url
+            .as_ref()
+            .map(|url| ArtworkCandidate {
+                provider: self.provider,
+                url: url.clone(),
+                thumbnail_url: url.clone(),
+                label: "Locandina".into(),
+            })
+            .into_iter()
+            .collect()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ArtworkCandidate {
+    pub provider: Provider,
+    pub url: String,
+    pub thumbnail_url: String,
+    pub label: String,
 }
 
 #[derive(Clone, Debug)]
@@ -233,17 +266,28 @@ impl Client {
     }
 
     pub fn download_artwork(&self, result: &MetadataResult) -> Result<Option<Artwork>> {
-        let Some(source_url) = result.artwork_url.as_deref() else {
+        let Some(candidate) = result.artwork_candidates().into_iter().next() else {
             return Ok(None);
         };
+        self.download_artwork_candidate(&candidate).map(Some)
+    }
+
+    pub fn download_artwork_candidate(&self, candidate: &ArtworkCandidate) -> Result<Artwork> {
+        self.download_artwork_url(&candidate.url, candidate.provider)
+    }
+
+    pub fn download_artwork_preview(&self, candidate: &ArtworkCandidate) -> Result<Artwork> {
+        self.download_artwork_url(&candidate.thumbnail_url, candidate.provider)
+    }
+
+    fn download_artwork_url(&self, source_url: &str, provider: Provider) -> Result<Artwork> {
         let url = Url::parse(source_url).context("URL della locandina non valido")?;
         ensure!(url.scheme() == "https", "La locandina deve usare HTTPS");
-        let mut response = self.agent.get(url.as_str()).call().with_context(|| {
-            format!(
-                "Download della locandina da {} non riuscito",
-                result.provider
-            )
-        })?;
+        let mut response = self
+            .agent
+            .get(url.as_str())
+            .call()
+            .with_context(|| format!("Download della locandina da {provider} non riuscito"))?;
         let media_type = response
             .headers()
             .get("content-type")
@@ -269,12 +313,12 @@ impl Client {
             _ => false,
         };
         ensure!(valid, "Il server non ha restituito un’immagine valida");
-        Ok(Some(Artwork {
+        Ok(Artwork {
             bytes,
             media_type,
             source_url: source_url.into(),
-            provider: result.provider,
-        }))
+            provider,
+        })
     }
 
     fn get_json(&self, url: Url, bearer: Option<&str>, provider: Provider) -> Result<Value> {
@@ -383,6 +427,7 @@ impl Client {
             apple_roles(roles, &["Writer"]),
         );
         insert(&mut fields, "composer", apple_roles(roles, &["Music"]));
+        let mut artworks = apple_artworks(content);
         if query.kind == MediaKind::TvShow {
             fields.insert("show".into(), hit.title.clone());
             if let (Some(season), Some(episode)) = (query.season, query.episode)
@@ -393,16 +438,31 @@ impl Client {
                 insert(&mut fields, "date", apple_date(item.get("releaseDate")));
                 fields.insert("season_number".into(), season.to_string());
                 fields.insert("episode_sort".into(), episode.to_string());
+                let episode_artworks = apple_artworks(&item);
+                if !episode_artworks.is_empty() {
+                    artworks.splice(0..0, episode_artworks);
+                }
             }
         }
+        if artworks.is_empty()
+            && let Some(url) = hit.thumbnail_url.clone()
+        {
+            artworks.push(ArtworkCandidate {
+                provider: Provider::AppleTv,
+                url: url.clone(),
+                thumbnail_url: url,
+                label: "Locandina".into(),
+            });
+        }
+        unique_artworks(&mut artworks);
         fields.insert("provider".into(), Provider::AppleTv.label().into());
         fields.insert("provider_id".into(), hit.id.clone());
         let source_url = nonempty(string(content, "url")).map(str::to_owned);
         Ok(MetadataResult {
             provider: Provider::AppleTv,
             fields,
-            artwork_url: apple_image(content, "coverArt", 1200, 1800)
-                .or_else(|| hit.thumbnail_url.clone()),
+            artwork_url: artworks.first().map(|artwork| artwork.url.clone()),
+            artworks,
             source_url,
             attribution: Provider::AppleTv.attribution().into(),
         })
@@ -536,8 +596,19 @@ impl Client {
             "composer",
             tmdb_crew(&value, "Original Music Composer"),
         );
-        let mut artwork_url =
-            tmdb_image(value.get("poster_path"), "original").or_else(|| hit.thumbnail_url.clone());
+        let mut artworks = tmdb_artworks(&value);
+        if artworks.is_empty()
+            && let Some(url) = tmdb_image(value.get("poster_path"), "original")
+                .or_else(|| hit.thumbnail_url.clone())
+        {
+            artworks.push(ArtworkCandidate {
+                provider: Provider::Tmdb,
+                thumbnail_url: tmdb_image(value.get("poster_path"), "w342")
+                    .unwrap_or_else(|| url.clone()),
+                url,
+                label: "Poster".into(),
+            });
+        }
         if hit.kind == MediaKind::TvShow {
             fields.insert(
                 "show".into(),
@@ -563,17 +634,31 @@ impl Client {
                     "screenwriters",
                     tmdb_department(&item, "Writing"),
                 );
-                if let Some(url) = tmdb_image(item.get("still_path"), "original") {
-                    artwork_url = Some(url);
+                let mut episode_artworks = tmdb_artworks(&item);
+                if episode_artworks.is_empty()
+                    && let Some(url) = tmdb_image(item.get("still_path"), "original")
+                {
+                    episode_artworks.push(ArtworkCandidate {
+                        provider: Provider::Tmdb,
+                        thumbnail_url: tmdb_image(item.get("still_path"), "w300")
+                            .unwrap_or_else(|| url.clone()),
+                        url,
+                        label: "Fotogramma episodio".into(),
+                    });
+                }
+                if !episode_artworks.is_empty() {
+                    artworks.splice(0..0, episode_artworks);
                 }
             }
         }
+        unique_artworks(&mut artworks);
         fields.insert("provider".into(), Provider::Tmdb.label().into());
         fields.insert("provider_id".into(), hit.id.clone());
         Ok(MetadataResult {
             provider: Provider::Tmdb,
             fields,
-            artwork_url,
+            artwork_url: artworks.first().map(|artwork| artwork.url.clone()),
+            artworks,
             source_url: Some(format!("https://www.themoviedb.org/{resource}/{}", hit.id)),
             attribution: Provider::Tmdb.attribution().into(),
         })
@@ -680,9 +765,19 @@ impl Client {
         insert(&mut fields, "studio", joined_names(data.get("studios")));
         insert(&mut fields, "cast", tvdb_people(data, &[3, 4]));
         insert(&mut fields, "director", tvdb_people(data, &[1]));
-        let mut artwork_url = absolute_image(data.get("image"))
-            .or_else(|| tvdb_poster(data))
-            .or_else(|| hit.thumbnail_url.clone());
+        let mut artworks = tvdb_artworks(data);
+        if artworks.is_empty()
+            && let Some(url) = absolute_image(data.get("image"))
+                .or_else(|| tvdb_poster(data))
+                .or_else(|| hit.thumbnail_url.clone())
+        {
+            artworks.push(ArtworkCandidate {
+                provider: Provider::Tvdb,
+                thumbnail_url: url.clone(),
+                url,
+                label: "Locandina".into(),
+            });
+        }
         if hit.kind == MediaKind::TvShow {
             fields.insert("show".into(), fields["title"].clone());
             if let (Some(season), Some(episode)) = (query.season, query.episode) {
@@ -721,16 +816,26 @@ impl Client {
                 fields.insert("season_number".into(), season.to_string());
                 fields.insert("episode_sort".into(), episode.to_string());
                 if let Some(url) = absolute_image(item.get("image")) {
-                    artwork_url = Some(url);
+                    artworks.insert(
+                        0,
+                        ArtworkCandidate {
+                            provider: Provider::Tvdb,
+                            thumbnail_url: url.clone(),
+                            url,
+                            label: "Fotogramma episodio".into(),
+                        },
+                    );
                 }
             }
         }
+        unique_artworks(&mut artworks);
         fields.insert("provider".into(), Provider::Tvdb.label().into());
         fields.insert("provider_id".into(), hit.id.clone());
         Ok(MetadataResult {
             provider: Provider::Tvdb,
             fields,
-            artwork_url,
+            artwork_url: artworks.first().map(|artwork| artwork.url.clone()),
+            artworks,
             source_url: Some(if hit.kind == MediaKind::Movie {
                 format!("https://thetvdb.com/movies/{}", hit.id)
             } else {
@@ -841,11 +946,28 @@ impl Client {
         }
         fields.insert("provider".into(), Provider::ITunes.label().into());
         fields.insert("provider_id".into(), hit.id.clone());
+        let artwork_url = itunes_artwork(string(item, "artworkUrl100"), 1200)
+            .or_else(|| hit.thumbnail_url.clone());
+        let artworks = artwork_url
+            .as_ref()
+            .map(|url| ArtworkCandidate {
+                provider: Provider::ITunes,
+                url: url.clone(),
+                thumbnail_url: itunes_artwork(string(item, "artworkUrl100"), 300)
+                    .unwrap_or_else(|| url.clone()),
+                label: if hit.kind == MediaKind::Movie {
+                    "Poster".into()
+                } else {
+                    "Copertina stagione".into()
+                },
+            })
+            .into_iter()
+            .collect();
         Ok(MetadataResult {
             provider: Provider::ITunes,
             fields,
-            artwork_url: itunes_artwork(string(item, "artworkUrl100"), 1200)
-                .or_else(|| hit.thumbnail_url.clone()),
+            artwork_url,
+            artworks,
             source_url: nonempty(string(item, "trackViewUrl")).map(str::to_owned),
             attribution: Provider::ITunes.attribution().into(),
         })
@@ -917,13 +1039,162 @@ fn apple_image(value: &Value, key: &str, width: u32, height: u32) -> Option<Stri
     let template = value
         .pointer(&format!("/images/{key}/url"))
         .and_then(Value::as_str)?;
-    Some(
+    apple_image_url(template, width, height)
+}
+
+fn apple_image_url(template: &str, width: u32, height: u32) -> Option<String> {
+    nonempty(template).map(|template| {
         template
             .replace("{w}", &width.to_string())
             .replace("{h}", &height.to_string())
             .replace("{c}", "")
-            .replace("{f}", "jpg"),
-    )
+            .replace("{f}", "jpg")
+    })
+}
+
+fn scaled_image_size(value: &Value, longest_side: u32) -> (u32, u32) {
+    let width = integer(value, "width").filter(|value| *value > 0);
+    let height = integer(value, "height").filter(|value| *value > 0);
+    match (width, height) {
+        (Some(width), Some(height)) if width >= height => (
+            longest_side,
+            ((longest_side as i64 * height / width).max(1)) as u32,
+        ),
+        (Some(width), Some(height)) => (
+            ((longest_side as i64 * width / height).max(1)) as u32,
+            longest_side,
+        ),
+        _ => (longest_side * 2 / 3, longest_side),
+    }
+}
+
+fn image_label(base: &str, value: &Value) -> String {
+    let mut parts = vec![base.to_owned()];
+    let language = string(value, "iso_639_1").or_if_empty(string(value, "language"));
+    if !language.is_empty() {
+        parts.push(language.to_ascii_uppercase());
+    }
+    if let (Some(width), Some(height)) = (integer(value, "width"), integer(value, "height")) {
+        parts.push(format!("{width} × {height}"));
+    }
+    parts.join(" · ")
+}
+
+fn apple_artworks(value: &Value) -> Vec<ArtworkCandidate> {
+    let Some(images) = value.get("images").and_then(Value::as_object) else {
+        return Vec::new();
+    };
+    let mut entries: Vec<_> = images.iter().collect();
+    entries.sort_by_key(|(name, _)| match name.as_str() {
+        "coverArt" => 0,
+        "coverArt16X9" => 1,
+        "previewFrame" => 2,
+        _ => 3,
+    });
+    let mut artworks = entries
+        .into_iter()
+        .filter_map(|(name, image)| {
+            let normalized_name = name.to_ascii_lowercase();
+            if normalized_name.contains("logo") {
+                return None;
+            }
+            let template = nonempty(string(image, "url"))?;
+            let (width, height) = scaled_image_size(image, 1800);
+            let (thumb_width, thumb_height) = scaled_image_size(image, 360);
+            let label = match name.as_str() {
+                "coverArt" => "Poster",
+                "coverArt16X9" => "Poster panoramico",
+                "previewFrame" => "Fotogramma",
+                _ if normalized_name.contains("background") => "Sfondo",
+                _ => "Artwork",
+            };
+            Some(ArtworkCandidate {
+                provider: Provider::AppleTv,
+                url: apple_image_url(template, width, height)?,
+                thumbnail_url: apple_image_url(template, thumb_width, thumb_height)?,
+                label: image_label(label, image),
+            })
+        })
+        .collect();
+    unique_artworks(&mut artworks);
+    artworks
+}
+
+fn tmdb_artworks(value: &Value) -> Vec<ArtworkCandidate> {
+    let mut artworks = Vec::new();
+    for (collection, label, thumbnail_size) in [
+        ("posters", "Poster", "w342"),
+        ("backdrops", "Sfondo", "w300"),
+        ("stills", "Fotogramma episodio", "w300"),
+    ] {
+        for image in value
+            .pointer(&format!("/images/{collection}"))
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .take(30)
+        {
+            let Some(url) = tmdb_image(image.get("file_path"), "original") else {
+                continue;
+            };
+            artworks.push(ArtworkCandidate {
+                provider: Provider::Tmdb,
+                thumbnail_url: tmdb_image(image.get("file_path"), thumbnail_size)
+                    .unwrap_or_else(|| url.clone()),
+                url,
+                label: image_label(label, image),
+            });
+        }
+    }
+    unique_artworks(&mut artworks);
+    artworks
+}
+
+fn tvdb_artworks(value: &Value) -> Vec<ArtworkCandidate> {
+    let mut artworks = Vec::new();
+    if let Some(url) = absolute_image(value.get("image")) {
+        artworks.push(ArtworkCandidate {
+            provider: Provider::Tvdb,
+            thumbnail_url: absolute_image(value.get("thumbnail")).unwrap_or_else(|| url.clone()),
+            url,
+            label: "Locandina principale".into(),
+        });
+    }
+    for image in value
+        .get("artworks")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .take(40)
+    {
+        let Some(url) = absolute_image(image.get("image")) else {
+            continue;
+        };
+        let lower = url.to_ascii_lowercase();
+        let label = if lower.contains("poster") || integer(image, "type") == Some(2) {
+            "Poster"
+        } else if lower.contains("background") || lower.contains("fanart") {
+            "Sfondo"
+        } else if lower.contains("season") {
+            "Copertina stagione"
+        } else {
+            "Artwork"
+        };
+        artworks.push(ArtworkCandidate {
+            provider: Provider::Tvdb,
+            thumbnail_url: absolute_image(image.get("thumbnail")).unwrap_or_else(|| url.clone()),
+            url,
+            label: image_label(label, image),
+        });
+    }
+    unique_artworks(&mut artworks);
+    artworks
+}
+
+fn unique_artworks(artworks: &mut Vec<ArtworkCandidate>) {
+    let mut seen = BTreeSet::new();
+    artworks.retain(|artwork| seen.insert(artwork.url.clone()));
+    artworks.truncate(40);
 }
 
 fn apple_date(value: Option<&Value>) -> String {
@@ -1093,6 +1364,53 @@ mod tests {
         );
         assert_eq!(tvdb_language("it-IT"), Some("ita"));
         assert_eq!(tvdb_language("en_US"), Some("eng"));
+    }
+
+    #[test]
+    fn provider_artwork_lists_keep_alternative_images() {
+        let apple = json!({
+            "images": {
+                "coverArt": {
+                    "url": "https://apple.test/{w}x{h}{c}.{f}",
+                    "width": 2000,
+                    "height": 3000
+                },
+                "coverArt16X9": {
+                    "url": "https://apple-wide.test/{w}x{h}{c}.{f}",
+                    "width": 3200,
+                    "height": 1800
+                }
+            }
+        });
+        let apple_choices = apple_artworks(&apple);
+        assert_eq!(apple_choices.len(), 2);
+        assert_eq!(apple_choices[0].label, "Poster · 2000 × 3000");
+        assert!(apple_choices[1].label.starts_with("Poster panoramico"));
+
+        let tmdb = json!({
+            "images": {
+                "posters": [
+                    {"file_path": "/it.jpg", "iso_639_1": "it", "width": 1000, "height": 1500},
+                    {"file_path": "/en.jpg", "iso_639_1": "en", "width": 1000, "height": 1500}
+                ],
+                "backdrops": [{"file_path": "/wide.jpg", "width": 1920, "height": 1080}]
+            }
+        });
+        let tmdb_choices = tmdb_artworks(&tmdb);
+        assert_eq!(tmdb_choices.len(), 3);
+        assert_eq!(tmdb_choices[0].label, "Poster · IT · 1000 × 1500");
+        assert!(tmdb_choices[2].label.starts_with("Sfondo"));
+
+        let tvdb = json!({
+            "image": "https://tvdb.test/main.jpg",
+            "artworks": [
+                {"image": "https://tvdb.test/poster-2.jpg", "thumbnail": "https://tvdb.test/thumb.jpg", "type": 2},
+                {"image": "https://tvdb.test/background.jpg"}
+            ]
+        });
+        let tvdb_choices = tvdb_artworks(&tvdb);
+        assert_eq!(tvdb_choices.len(), 3);
+        assert_eq!(tvdb_choices[0].label, "Locandina principale");
     }
 
     #[test]
