@@ -238,6 +238,7 @@ fn imported_metadata_and_poster_are_written_to_mp4() {
     fields.insert("title".into(), "La città viola".into());
     fields.insert("director".into(), "Giulia Bianchi".into());
     fields.insert("provider".into(), "TheMovieDB".into());
+    fields.insert("provider_id".into(), "42".into());
     doc.apply_metadata(
         MetadataResult {
             provider: Provider::Tmdb,
@@ -257,6 +258,15 @@ fn imported_metadata_and_poster_are_written_to_mp4() {
     export(&doc, &destination, &AtomicBool::new(false), |_| {}).unwrap();
     let output = Document::open(&destination).unwrap();
     assert_eq!(output.metadata["title"], "La città viola");
+    assert_eq!(output.metadata["provider_id"], "42");
+    assert_eq!(
+        output.metadata["webpage_url"],
+        "https://www.themoviedb.org/movie/42"
+    );
+    assert_eq!(
+        output.metadata["metadata_attribution"],
+        Provider::Tmdb.attribution()
+    );
     let tag = mp4ameta::Tag::read_from_path(&destination).unwrap();
     assert_eq!(
         tag.strings_of(&mp4ameta::FreeformIdent::new_static(
@@ -275,12 +285,20 @@ fn imported_metadata_and_poster_are_written_to_mp4() {
         Some("TheMovieDB")
     );
     assert_eq!(tag.artwork().unwrap().data, fs::read(&poster).unwrap());
-    let cover = output
-        .tracks
-        .iter()
-        .find(|track| track.attached_picture)
-        .expect("the exported file must contain the poster");
-    assert_eq!(cover.codec, "mjpeg");
+    assert_eq!(
+        output.artwork.as_ref().unwrap().bytes,
+        fs::read(&poster).unwrap()
+    );
+    assert!(!output.tracks.iter().any(|track| track.attached_picture));
+    assert!(!output.tracks.iter().any(|track| track.kind == "data"));
+
+    let reopened = dir.path().join("reopened.mp4");
+    export(&output, &reopened, &AtomicBool::new(false), |_| {}).unwrap();
+    let reopened_tag = mp4ameta::Tag::read_from_path(&reopened).unwrap();
+    assert_eq!(
+        reopened_tag.artwork().unwrap().data,
+        fs::read(&poster).unwrap()
+    );
 }
 
 #[test]

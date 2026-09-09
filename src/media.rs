@@ -13,12 +13,12 @@ use std::{
 };
 
 use anyhow::{Context, Result, bail, ensure};
-use mp4ameta::{Data, FreeformIdent, Img, MediaType, Tag};
+use mp4ameta::{Data, FreeformIdent, Img, ImgFmt, MediaType, Tag};
 use serde::{Deserialize, Serialize};
 
 use crate::{
     language,
-    metadata::{Artwork, MetadataResult},
+    metadata::{Artwork, MetadataResult, Provider},
 };
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -122,6 +122,16 @@ fn tag(tags: &BTreeMap<String, String>, key: &str) -> String {
         .unwrap_or_default()
 }
 
+fn metadata_key(key: &str) -> String {
+    match key.to_ascii_lowercase().as_str() {
+        "content-rating" => "content_rating".into(),
+        "provider-id" => "provider_id".into(),
+        "source-url" => "webpage_url".into(),
+        "attribution" => "metadata_attribution".into(),
+        key => key.into(),
+    }
+}
+
 fn local_file(path: &Path) -> Result<PathBuf> {
     let path = path
         .canonicalize()
@@ -197,13 +207,57 @@ fn probe(path: &Path) -> Result<Probe> {
     serde_json::from_slice(&output).context("Risposta ffprobe non valida")
 }
 
+fn read_itunes_artwork(path: &Path, metadata: &BTreeMap<String, String>) -> Option<Artwork> {
+    let tag = Tag::read_from_path(path).ok()?;
+    let image = tag.artwork()?;
+    let media_type = match image.fmt {
+        ImgFmt::Bmp => "image/bmp",
+        ImgFmt::Jpeg => "image/jpeg",
+        ImgFmt::Png => "image/png",
+    };
+    let provider = metadata
+        .get("provider")
+        .and_then(|label| {
+            Provider::ALL
+                .into_iter()
+                .find(|provider| provider.label().eq_ignore_ascii_case(label))
+        })
+        .unwrap_or(Provider::ITunes);
+    let source_url = metadata.get("webpage_url").cloned().unwrap_or_default();
+    Some(Artwork {
+        bytes: image.data.to_vec(),
+        media_type: media_type.into(),
+        source_url,
+        provider,
+    })
+}
+
 impl Document {
     pub fn open(path: &Path) -> Result<Self> {
         let path = local_file(path)?;
         let result = probe(&path)?;
         ensure!(!result.streams.is_empty(), "Il file non contiene tracce");
-        let tracks = result.streams.into_iter().map(|stream| {
+        let metadata: BTreeMap<_, _> = result
+            .format
+            .tags
+            .into_iter()
+            .map(|(key, value)| (metadata_key(&key), value))
+            .collect();
+        let artwork = read_itunes_artwork(&path, &metadata);
+        let has_chapters = !result.chapters.is_empty();
+        let tracks = result.streams.into_iter().filter_map(|stream| {
             let attached = stream.disposition.get("attached_pic") == Some(&1);
+            if attached && artwork.is_some() {
+                return None;
+            }
+            let handler = tag(&stream.tags, "handler_name");
+            let chapter_data = has_chapters
+                && stream.codec_type == "data"
+                && stream.codec_name == "bin_data"
+                && handler.eq_ignore_ascii_case("SubtitleHandler");
+            if chapter_data {
+                return None;
+            }
             let supported = match stream.codec_type.as_str() {
                 "video" if attached => matches!(stream.codec_name.as_str(), "mjpeg" | "png"),
                 "video" => matches!(stream.codec_name.as_str(), "h264" | "hevc" | "av1" | "mpeg4" | "vp9"),
@@ -219,7 +273,7 @@ impl Document {
             let language = tag(&stream.tags, "language");
             let language = language::normalize(&language).unwrap_or("und").to_owned();
             let title = tag(&stream.tags, "title");
-            let title = if title.is_empty() { tag(&stream.tags, "handler_name") } else { title };
+            let title = if title.is_empty() { handler } else { title };
             let details = match stream.codec_type.as_str() {
                 "video" if attached => "Copertina incorporata".into(),
                 "video" => format!("{} × {}", stream.width.unwrap_or(0), stream.height.unwrap_or(0)),
@@ -231,14 +285,14 @@ impl Document {
                 && !matches!(stream.codec_name.as_str(), "aac" | "ac3" | "eac3" | "alac" | "mp3") {
                 AudioMode::Aac
             } else { AudioMode::Copy };
-            Track {
+            Some(Track {
                 source: path.clone(), index: stream.index, kind: stream.codec_type, codec: stream.codec_name,
                 details, language, title, enabled: supported, unsupported, audio_mode,
                 default: stream.disposition.get("default") == Some(&1),
                 forced: stream.disposition.get("forced") == Some(&1),
                 dispositions: stream.disposition.into_iter().filter(|(_, value)| *value == 1).map(|(key, _)| key).collect(),
                 attached_picture: attached,
-            }
+            })
         }).collect();
         Ok(Self {
             size: fs::metadata(&path)?.len(),
@@ -250,14 +304,9 @@ impl Document {
                 .filter(|value| value.is_finite() && *value >= 0.0)
                 .unwrap_or(0.0),
             tracks,
-            metadata: result
-                .format
-                .tags
-                .into_iter()
-                .map(|(key, value)| (key.to_ascii_lowercase(), value))
-                .collect(),
+            metadata,
             chapters: result.chapters,
-            artwork: None,
+            artwork,
         })
     }
 
