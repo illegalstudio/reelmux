@@ -1,8 +1,9 @@
-use std::{path::PathBuf, process::ExitCode, sync::atomic::AtomicBool};
+use std::{fs::OpenOptions, io::Write, path::PathBuf, process::ExitCode, sync::atomic::AtomicBool};
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use subler_linux::media::{AudioMode, Document, ExportEvent, export};
+use subler_linux::metadata::{Client as MetadataClient, MediaKind, Provider, SearchQuery};
 
 #[cfg(feature = "gui")]
 mod ui;
@@ -34,6 +35,28 @@ enum Commands {
         exclude: Vec<u32>,
         #[arg(long)]
         aac: bool,
+    },
+    /// Cerca metadati e locandine nei provider supportati da Subler.
+    Metadata {
+        query: String,
+        #[arg(long, default_value = "apple-tv")]
+        provider: Provider,
+        #[arg(long)]
+        tv: bool,
+        #[arg(long, default_value = "it-IT")]
+        language: String,
+        #[arg(long, default_value = "IT")]
+        country: String,
+        #[arg(long)]
+        season: Option<u32>,
+        #[arg(long)]
+        episode: Option<u32>,
+        /// Risolvi il risultato indicato, partendo da 1.
+        #[arg(long)]
+        select: Option<usize>,
+        /// Salva la locandina del risultato selezionato senza sovrascrivere.
+        #[arg(long, requires = "select")]
+        artwork: Option<PathBuf>,
     },
 }
 
@@ -84,6 +107,53 @@ fn run() -> Result<()> {
                 }
             })?;
             println!("Salvato: {}", output.display());
+        }
+        Some(Commands::Metadata {
+            query,
+            provider,
+            tv,
+            language,
+            country,
+            season,
+            episode,
+            select,
+            artwork,
+        }) => {
+            let query = SearchQuery {
+                provider,
+                kind: if tv {
+                    MediaKind::TvShow
+                } else {
+                    MediaKind::Movie
+                },
+                term: query,
+                language,
+                country,
+                season,
+                episode,
+            };
+            let client = MetadataClient::default();
+            let hits = client.search(&query)?;
+            if let Some(selected) = select {
+                let hit = selected
+                    .checked_sub(1)
+                    .and_then(|index| hits.get(index))
+                    .ok_or_else(|| anyhow::anyhow!("Risultato {selected} inesistente"))?;
+                let result = client.resolve(hit, &query)?;
+                if let Some(path) = artwork
+                    && let Some(image) = client.download_artwork(&result)?
+                {
+                    let mut file = OpenOptions::new()
+                        .write(true)
+                        .create_new(true)
+                        .open(&path)?;
+                    file.write_all(&image.bytes)?;
+                    eprintln!("Locandina salvata: {}", path.display());
+                }
+                println!("{}", serde_json::to_string_pretty(&result)?);
+            } else {
+                println!("{}", serde_json::to_string_pretty(&hits)?);
+            }
         }
         None => {
             #[cfg(feature = "gui")]
