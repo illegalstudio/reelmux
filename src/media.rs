@@ -13,9 +13,13 @@ use std::{
 };
 
 use anyhow::{Context, Result, bail, ensure};
+use mp4ameta::{Data, FreeformIdent, Img, MediaType, Tag};
 use serde::{Deserialize, Serialize};
 
-use crate::language;
+use crate::{
+    language,
+    metadata::{Artwork, MetadataResult},
+};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AudioMode {
@@ -39,6 +43,8 @@ pub struct Track {
     pub forced: bool,
     pub audio_mode: AudioMode,
     pub dispositions: Vec<String>,
+    #[serde(default)]
+    pub attached_picture: bool,
 }
 
 impl Track {
@@ -71,6 +77,8 @@ pub struct Document {
     pub tracks: Vec<Track>,
     pub metadata: BTreeMap<String, String>,
     pub chapters: Vec<Chapter>,
+    #[serde(skip)]
+    pub artwork: Option<Artwork>,
 }
 
 #[derive(Deserialize)]
@@ -229,6 +237,7 @@ impl Document {
                 default: stream.disposition.get("default") == Some(&1),
                 forced: stream.disposition.get("forced") == Some(&1),
                 dispositions: stream.disposition.into_iter().filter(|(_, value)| *value == 1).map(|(key, _)| key).collect(),
+                attached_picture: attached,
             }
         }).collect();
         Ok(Self {
@@ -248,6 +257,7 @@ impl Document {
                 .map(|(key, value)| (key.to_ascii_lowercase(), value))
                 .collect(),
             chapters: result.chapters,
+            artwork: None,
         })
     }
 
@@ -284,12 +294,101 @@ impl Document {
         let stem = self.path.file_stem().unwrap_or_default().to_string_lossy();
         self.path.with_file_name(format!("{stem}-edited.mp4"))
     }
+
+    pub fn apply_metadata(&mut self, result: MetadataResult, artwork: Option<Artwork>) {
+        self.metadata.extend(result.fields);
+        if let Some(source_url) = result.source_url {
+            self.metadata.insert("webpage_url".into(), source_url);
+        }
+        self.metadata
+            .insert("metadata_attribution".into(), result.attribution);
+        if artwork.is_some() {
+            for track in &mut self.tracks {
+                if track.attached_picture {
+                    track.enabled = false;
+                }
+            }
+            self.artwork = artwork;
+        }
+    }
 }
 
 #[derive(Debug)]
 pub enum ExportEvent {
     Stage(String),
     Progress(Option<f64>),
+}
+
+fn write_itunes_metadata(path: &Path, doc: &Document) -> Result<()> {
+    let mut tag = Tag::read_from_path(path).context("Lettura degli atom MP4 non riuscita")?;
+    let value = |key: &str| doc.metadata.get(key).filter(|value| !value.is_empty());
+    if let Some(value) = value("title") {
+        tag.set_title(value);
+    }
+    if let Some(value) = value("date") {
+        tag.set_year(value);
+    }
+    if let Some(value) = value("genre") {
+        tag.set_custom_genre(value);
+    }
+    if let Some(value) = value("description") {
+        tag.set_description(value);
+    }
+    if let Some(value) = value("comment") {
+        tag.set_comment(value);
+    }
+    if let Some(value) = value("composer") {
+        tag.set_composer(value);
+    }
+    if let Some(value) = value("copyright") {
+        tag.set_copyright(value);
+    }
+    if let Some(show) = value("show") {
+        tag.set_tv_show_name(show);
+        tag.set_media_type(MediaType::TvShow);
+        if let Some(title) = value("title") {
+            tag.set_tv_episode_name(title);
+        }
+    } else {
+        tag.set_media_type(MediaType::Movie);
+    }
+    if let Some(value) = value("network") {
+        tag.set_tv_network_name(value);
+    }
+    if let Some(value) = value("season_number") {
+        tag.set_tv_season(value.parse().context("Stagione non valida")?);
+    }
+    if let Some(value) = value("episode_sort") {
+        tag.set_tv_episode(value.parse().context("Episodio non valido")?);
+    }
+    for (key, name) in [
+        ("cast", "cast"),
+        ("director", "director"),
+        ("producers", "producers"),
+        ("screenwriters", "screenwriters"),
+        ("studio", "studio"),
+        ("content_rating", "content-rating"),
+        ("provider", "provider"),
+        ("provider_id", "provider-id"),
+        ("webpage_url", "source-url"),
+        ("metadata_attribution", "attribution"),
+    ] {
+        if let Some(value) = value(key) {
+            tag.set_data(
+                FreeformIdent::new_static("io.github.sublerlinux.metadata", name),
+                Data::Utf8(value.clone()),
+            );
+        }
+    }
+    if let Some(artwork) = doc.artwork.as_ref() {
+        if artwork.media_type == "image/png" {
+            tag.set_artwork(Img::png(artwork.bytes.clone()));
+        } else {
+            tag.set_artwork(Img::jpeg(artwork.bytes.clone()));
+        }
+    }
+    tag.write_to_path(path)
+        .context("Scrittura dei metadati iTunes e della locandina non riuscita")
 }
 
 /// Export to a temporary file on the destination filesystem, validate, then publish
@@ -403,8 +502,6 @@ pub fn export(
             },
         ]);
     }
-    // Explicitly write editable iTunes-style fields. Other recognized metadata is
-    // copied by FFmpeg; preserving arbitrary MP4 atoms is outside this prototype.
     for key in [
         "title",
         "date",
@@ -414,6 +511,18 @@ pub fn export(
         "show",
         "season_number",
         "episode_sort",
+        "content_rating",
+        "cast",
+        "director",
+        "producers",
+        "screenwriters",
+        "composer",
+        "studio",
+        "network",
+        "provider",
+        "provider_id",
+        "webpage_url",
+        "metadata_attribution",
     ] {
         if let Some(value) = doc.metadata.get(key) {
             if key == "season_number" || key == "episode_sort" {
@@ -496,10 +605,15 @@ pub fn export(
         status.success(),
         "FFmpeg non ha completato l'esportazione:\n{error_text}"
     );
+    notify(ExportEvent::Stage(
+        "Scrittura dei metadati e della locandina…".into(),
+    ));
+    write_itunes_metadata(temp.path(), doc)?;
     notify(ExportEvent::Stage("Verifica del file esportato…".into()));
     let output = probe(temp.path()).context("Verifica del file esportato fallita")?;
     for kind in ["video", "audio", "subtitle"] {
-        let expected = selected.iter().filter(|track| track.kind == kind).count();
+        let expected = selected.iter().filter(|track| track.kind == kind).count()
+            + usize::from(kind == "video" && doc.artwork.is_some());
         let actual = output
             .streams
             .iter()

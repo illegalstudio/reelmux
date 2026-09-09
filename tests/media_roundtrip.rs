@@ -5,6 +5,7 @@ use std::{
     sync::atomic::{AtomicBool, Ordering},
 };
 use subler_linux::media::{AudioMode, Document, ExportEvent, export};
+use subler_linux::metadata::{Artwork, MetadataResult, Provider};
 
 fn ffmpeg(args: &[&str]) {
     let output = Command::new("ffmpeg")
@@ -217,6 +218,69 @@ fn invalid_files_and_duplicate_subtitles_fail_cleanly() {
     fs::write(&srt, "1\n00:00:00,000 --> 00:00:01,000\nHello\n").unwrap();
     doc.add_subtitle(&srt, "eng").unwrap();
     assert!(doc.add_subtitle(&srt, "eng").is_err());
+}
+
+#[test]
+fn imported_metadata_and_poster_are_written_to_mp4() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut doc = fixture(dir.path());
+    let poster = dir.path().join("poster.jpg");
+    ffmpeg(&[
+        "-f",
+        "lavfi",
+        "-i",
+        "color=c=0x6f4cff:s=600x900",
+        "-frames:v",
+        "1",
+        poster.to_str().unwrap(),
+    ]);
+    let mut fields = std::collections::BTreeMap::new();
+    fields.insert("title".into(), "La città viola".into());
+    fields.insert("director".into(), "Giulia Bianchi".into());
+    fields.insert("provider".into(), "TheMovieDB".into());
+    doc.apply_metadata(
+        MetadataResult {
+            provider: Provider::Tmdb,
+            fields,
+            artwork_url: Some("https://image.example/poster.jpg".into()),
+            source_url: Some("https://www.themoviedb.org/movie/42".into()),
+            attribution: Provider::Tmdb.attribution().into(),
+        },
+        Some(Artwork {
+            bytes: fs::read(&poster).unwrap(),
+            media_type: "image/jpeg".into(),
+            source_url: "https://image.example/poster.jpg".into(),
+            provider: Provider::Tmdb,
+        }),
+    );
+    let destination = dir.path().join("with-poster.mp4");
+    export(&doc, &destination, &AtomicBool::new(false), |_| {}).unwrap();
+    let output = Document::open(&destination).unwrap();
+    assert_eq!(output.metadata["title"], "La città viola");
+    let tag = mp4ameta::Tag::read_from_path(&destination).unwrap();
+    assert_eq!(
+        tag.strings_of(&mp4ameta::FreeformIdent::new_static(
+            "io.github.sublerlinux.metadata",
+            "director"
+        ))
+        .next(),
+        Some("Giulia Bianchi")
+    );
+    assert_eq!(
+        tag.strings_of(&mp4ameta::FreeformIdent::new_static(
+            "io.github.sublerlinux.metadata",
+            "provider"
+        ))
+        .next(),
+        Some("TheMovieDB")
+    );
+    assert_eq!(tag.artwork().unwrap().data, fs::read(&poster).unwrap());
+    let cover = output
+        .tracks
+        .iter()
+        .find(|track| track.attached_picture)
+        .expect("the exported file must contain the poster");
+    assert_eq!(cover.codec, "mjpeg");
 }
 
 #[test]
