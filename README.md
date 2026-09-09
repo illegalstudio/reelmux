@@ -11,6 +11,9 @@ Un editor MP4 per Linux scritto in Rust e GTK4, ispirato a
 - Aggiunta di SRT esterni e conversione dei sottotitoli testuali in `mov_text`.
 - Copia del video e scelta tra copia audio e conversione AAC a 192 kbit/s.
 - Modifica di titolo, data, genere, descrizione, serie, stagione ed episodio.
+- Ricerca di film e serie su Apple TV, TheMovieDB, TheTVDB e iTunes Store.
+- Importazione di descrizione, cast, troupe, studio, classificazione e altri campi disponibili.
+- Download, anteprima e incorporamento della locandina nell'atom MP4 `covr`.
 - Trasferimento dei capitoli originali.
 - Esportazione in background, avanzamento, annullamento e verifica delle tracce.
 - Interfaccia a riga di comando per ispezione ed esportazione.
@@ -46,12 +49,36 @@ cargo run --locked -- /percorso/al/video.mkv
 ```
 
 Scorciatoie: `Ctrl+O` apre un file, `Ctrl+I` aggiunge un SRT,
-`Ctrl+Shift+S` esporta un MP4.
+`Ctrl+M` cerca i metadati, `Ctrl+Shift+S` esporta un MP4.
 
 Per le lingue sono accettati codici a due o tre lettere: `it` / `ita`,
 `en` / `eng`, `de` / `deu` / `ger`. Un valore vuoto equivale a `und`.
 Le caselle nella colonna **Usa** determinano le tracce da esportare;
 l'evidenziazione delle righe nella tabella non cambia questa scelta.
+
+## Provider dei metadati
+
+Apple TV e iTunes Store non richiedono configurazione. TheMovieDB e TheTVDB
+richiedono credenziali personali, che l'applicazione legge dall'ambiente:
+
+```sh
+export TMDB_API_TOKEN="token-di-lettura-v4"
+# In alternativa al token: export TMDB_API_KEY="chiave-v3"
+export TVDB_API_KEY="chiave-api"
+# Solo per gli account che lo richiedono: export TVDB_PIN="pin-abbonato"
+cargo run --locked
+```
+
+Le chiavi comprese nel sorgente di Subler non vengono riutilizzate. La finestra
+**Cerca online** consente di scegliere provider, film o serie, lingua, paese,
+stagione ed episodio. Dopo la selezione scarica anche la migliore locandina
+indicata dal provider. La disponibilità dei cataloghi varia per paese.
+
+This product uses the TMDB API but is not endorsed or certified by TMDB.
+Per i risultati TheTVDB, i metadati sono forniti da
+[TheTVDB](https://thetvdb.com/); valuta di contribuire le informazioni mancanti
+o di sottoscrivere un abbonamento. L'uso delle API resta soggetto ai termini dei
+rispettivi provider.
 
 ## Prova con file sintetici
 
@@ -69,6 +96,9 @@ Il sottotitolo può essere aggiunto dalla GUI o trascinato nella finestra aperta
 cargo run --locked -- inspect video.mkv
 cargo run --locked -- export video.mkv risultato.mp4 --title "Titolo" --subtitle italiano.srt --language ita
 cargo run --locked -- export video.mkv risultato.mp4 --exclude 2 --aac
+cargo run --locked --no-default-features -- metadata "Dune" --provider apple-tv
+cargo run --locked --no-default-features -- metadata "Dune" --provider apple-tv --select 1 --artwork dune.jpg
+cargo run --locked --no-default-features -- metadata "Breaking Bad" --provider itunes --tv --season 5 --episode 1
 ```
 
 `--exclude` usa l'indice originale della traccia, visibile nell'output di `inspect`.
@@ -106,7 +136,11 @@ si può acquisire la sola finestra del test, senza catturare il resto del deskto
 
 ## Limiti del prototipo
 
-- Nessuna ricerca TMDB/TVDB, modifica dei capitoli, aggiunta di copertine o coda batch.
+- Nessuna modifica dei capitoli o coda batch.
+- Apple TV usa l'endpoint pubblico consultato da Subler, che non ha una specifica
+  pubblica stabile. iTunes Store può non restituire film in alcuni cataloghi.
+- La mappatura copre i principali campi offerti dai quattro provider. Rating
+  territoriali complessi e più locandine selezionabili richiedono altro lavoro.
 - I sottotitoli bitmap richiedono OCR esterno. Gli stili ASS/SSA possono essere persi
   nella conversione in testo MP4.
 - Nessuna promessa di conservazione completa degli atom MP4 proprietari, dei legami
@@ -123,7 +157,8 @@ si può acquisire la sola finestra del test, senza catturare il resto del deskto
 
 ## Struttura
 
-- `src/media.rs`: modello del documento e operazioni FFmpeg/ffprobe, senza GTK.
+- `src/media.rs`: modello del documento, operazioni FFmpeg/ffprobe e atom MP4.
+- `src/metadata.rs`: client e mappature per i quattro provider di metadati.
 - `src/language.rs`: normalizzazione dei codici lingua.
 - `src/ui.rs`: interfaccia GTK4 e comunicazione con i worker.
 - `src/main.rs`: avvio GUI e CLI.
