@@ -1,5 +1,13 @@
 use anyhow::Result;
 use gtk::{gdk, gio, glib, prelude::*};
+use reelmux::{
+    language,
+    media::{self, AudioMode, Document, ExportEvent, Track},
+    metadata::{
+        Artwork, ArtworkCandidate, Client as MetadataClient, MediaKind, MetadataResult, Provider,
+        SearchHit, SearchQuery,
+    },
+};
 use std::{
     cell::{Cell, RefCell},
     path::PathBuf,
@@ -11,14 +19,6 @@ use std::{
     },
     thread,
     time::Duration,
-};
-use subler_linux::{
-    language,
-    media::{self, AudioMode, Document, ExportEvent, Track},
-    metadata::{
-        Artwork, ArtworkCandidate, Client as MetadataClient, MediaKind, MetadataResult, Provider,
-        SearchHit, SearchQuery,
-    },
 };
 
 struct Ui {
@@ -111,7 +111,7 @@ impl MetadataBrowser {
             if artwork_only {
                 "Cerca una nuova locandina senza modificare i metadati"
             } else {
-                "Cerca film e serie nei provider di Subler"
+                "Cerca film e serie nei provider online"
             },
             "section-title",
         ));
@@ -694,7 +694,7 @@ impl Ui {
     fn new(app: &gtk::Application) -> Rc<Self> {
         let window = gtk::ApplicationWindow::builder()
             .application(app)
-            .title("Subler Linux")
+            .title("ReelMux")
             .default_width(1180)
             .default_height(800)
             .build();
@@ -704,7 +704,7 @@ impl Ui {
         let logo = gtk::Image::from_icon_name("video-x-generic-symbolic");
         logo.add_css_class("brand-icon");
         brand.append(&logo);
-        brand.append(&label("Subler Linux", "heading"));
+        brand.append(&label("ReelMux", "heading"));
         brand.append(&label("PROTOTIPO", "badge"));
         header.set_title_widget(Some(&brand));
         let open = gtk::Button::with_label("Apri file");
@@ -1077,7 +1077,7 @@ impl Ui {
     fn mark_dirty(&self) {
         self.dirty.set(true);
         self.window
-            .set_title(Some("Subler Linux · modifiche non esportate"));
+            .set_title(Some("ReelMux · modifiche non esportate"));
         self.refresh_summary();
     }
     fn refresh_summary(&self) {
@@ -1379,7 +1379,7 @@ impl Ui {
         self.stack.set_visible_child_name("editor");
         self.loading.set(false);
         self.dirty.set(false);
-        self.window.set_title(Some("Subler Linux"));
+        self.window.set_title(Some("ReelMux"));
         self.refresh_summary();
         self.status.set_text(if unsupported {
             "Alcune tracce non supportate sono escluse. Passa sul codec per i dettagli."
@@ -1433,7 +1433,7 @@ impl Ui {
                         match result {
                             Ok(()) => {
                                 ui.dirty.set(false);
-                                ui.window.set_title(Some("Subler Linux"));
+                                ui.window.set_title(Some("ReelMux"));
                                 ui.status.set_text(&format!(
                                     "Esportazione completata: {}",
                                     path.display()
@@ -1675,7 +1675,7 @@ impl Ui {
 
 pub fn run(path: Option<PathBuf>) -> Result<()> {
     let app = gtk::Application::builder()
-        .application_id("io.github.sublerlinux.Subler")
+        .application_id("io.github.nahime0.ReelMux")
         .flags(gio::ApplicationFlags::NON_UNIQUE)
         .build();
     let current: Rc<RefCell<Option<Rc<Ui>>>> = Rc::new(RefCell::new(None));
@@ -1741,7 +1741,7 @@ mod tests {
     fn gui_roundtrip() {
         gtk::init().unwrap();
         let app = gtk::Application::builder()
-            .application_id("io.github.sublerlinux.SmokeTest")
+            .application_id("io.github.nahime0.ReelMux.SmokeTest")
             .flags(gio::ApplicationFlags::NON_UNIQUE)
             .build();
         app.register(gio::Cancellable::NONE).unwrap();
@@ -1865,7 +1865,7 @@ mod tests {
             browser.import.label().as_deref(),
             Some("Importa metadati e locandina")
         );
-        if let Some(path) = std::env::var_os("SUBLER_TEST_BROWSER_SCREENSHOT") {
+        if let Some(path) = std::env::var_os("REELMUX_TEST_BROWSER_SCREENSHOT") {
             let mut frames = 0;
             pump_until(|| {
                 frames += 1;
@@ -1920,7 +1920,7 @@ mod tests {
             poster_bytes
         );
         // Capture only our widget tree, independent of overlapping desktop windows.
-        if let Some(path) = std::env::var_os("SUBLER_TEST_SCREENSHOT") {
+        if let Some(path) = std::env::var_os("REELMUX_TEST_SCREENSHOT") {
             let mut frames = 0;
             pump_until(|| {
                 frames += 1;

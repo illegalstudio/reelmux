@@ -11,7 +11,7 @@ args.directory.mkdir(parents=True, exist_ok=True)
 metadata = args.directory / "chapters.ffmetadata"
 metadata.write_text(
     ";FFMETADATA1\ntitle=Viaggio notturno\ndate=2026\ngenre=Documentario\n"
-    "description=Un piccolo video sintetico per provare Subler Linux.\n"
+    "description=Un piccolo video sintetico per provare ReelMux.\n"
     "[CHAPTER]\nTIMEBASE=1/1000\nSTART=0\nEND=6000\ntitle=Partenza\n"
     "[CHAPTER]\nTIMEBASE=1/1000\nSTART=6000\nEND=12000\ntitle=Arrivo\n",
     encoding="utf-8",

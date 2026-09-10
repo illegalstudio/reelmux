@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
-Name=Subler Linux
+Name=ReelMux
 Comment=Edit MP4 tracks, subtitles and metadata
-Exec=subler-linux %f
-Icon=io.github.sublerlinux.Subler
+Exec=reelmux %f
+Icon=io.github.nahime0.ReelMux
 Terminal=false
 Categories=AudioVideo;AudioVideoEditing;
 MimeType=video/mp4;video/x-matroska;video/quicktime;

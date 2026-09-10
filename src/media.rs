@@ -21,6 +21,20 @@ use crate::{
     metadata::{Artwork, MetadataResult, Provider},
 };
 
+const METADATA_MEAN: &str = "io.github.nahime0.ReelMux.metadata";
+const LEGACY_METADATA_MEAN: &str = "io.github.sublerlinux.metadata";
+const PRIVATE_METADATA_FIELDS: [(&str, &str); 9] = [
+    ("cast", "cast"),
+    ("director", "director"),
+    ("producers", "producers"),
+    ("screenwriters", "screenwriters"),
+    ("studio", "studio"),
+    ("content_rating", "content-rating"),
+    ("provider", "provider"),
+    ("provider_id", "provider-id"),
+    ("webpage_url", "source-url"),
+];
+
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AudioMode {
     #[default]
@@ -232,17 +246,40 @@ fn read_itunes_artwork(path: &Path, metadata: &BTreeMap<String, String>) -> Opti
     })
 }
 
+fn read_private_metadata(path: &Path, metadata: &mut BTreeMap<String, String>) {
+    let Ok(tag) = Tag::read_from_path(path) else {
+        return;
+    };
+    for (key, name) in PRIVATE_METADATA_FIELDS {
+        for mean in [METADATA_MEAN, LEGACY_METADATA_MEAN] {
+            let ident = FreeformIdent::new_static(mean, name);
+            if let Some(value) = tag.strings_of(&ident).next() {
+                metadata.insert(key.into(), value.into());
+                break;
+            }
+        }
+    }
+    for mean in [METADATA_MEAN, LEGACY_METADATA_MEAN] {
+        let ident = FreeformIdent::new_static(mean, "attribution");
+        if let Some(value) = tag.strings_of(&ident).next() {
+            metadata.insert("metadata_attribution".into(), value.into());
+            break;
+        }
+    }
+}
+
 impl Document {
     pub fn open(path: &Path) -> Result<Self> {
         let path = local_file(path)?;
         let result = probe(&path)?;
         ensure!(!result.streams.is_empty(), "Il file non contiene tracce");
-        let metadata: BTreeMap<_, _> = result
+        let mut metadata: BTreeMap<_, _> = result
             .format
             .tags
             .into_iter()
             .map(|(key, value)| (metadata_key(&key), value))
             .collect();
+        read_private_metadata(&path, &mut metadata);
         let artwork = read_itunes_artwork(&path, &metadata);
         let has_chapters = !result.chapters.is_empty();
         let tracks = result.streams.into_iter().filter_map(|stream| {
@@ -414,21 +451,15 @@ fn write_itunes_metadata(path: &Path, doc: &Document) -> Result<()> {
     if let Some(value) = value("episode_sort") {
         tag.set_tv_episode(value.parse().context("Episodio non valido")?);
     }
-    for (key, name) in [
-        ("cast", "cast"),
-        ("director", "director"),
-        ("producers", "producers"),
-        ("screenwriters", "screenwriters"),
-        ("studio", "studio"),
-        ("content_rating", "content-rating"),
-        ("provider", "provider"),
-        ("provider_id", "provider-id"),
-        ("webpage_url", "source-url"),
-        ("metadata_attribution", "attribution"),
-    ] {
+    for (key, name) in PRIVATE_METADATA_FIELDS
+        .into_iter()
+        .chain([("metadata_attribution", "attribution")])
+    {
+        tag.remove_data_of(&FreeformIdent::new_static(METADATA_MEAN, name));
+        tag.remove_data_of(&FreeformIdent::new_static(LEGACY_METADATA_MEAN, name));
         if let Some(value) = value(key) {
             tag.set_data(
-                FreeformIdent::new_static("io.github.sublerlinux.metadata", name),
+                FreeformIdent::new_static(METADATA_MEAN, name),
                 Data::Utf8(value.clone()),
             );
         }
@@ -495,7 +526,7 @@ pub fn export(
         }
     }
     let temp = tempfile::Builder::new()
-        .prefix(".subler-")
+        .prefix(".reelmux-")
         .suffix(".mp4")
         .tempfile_in(&parent)
         .context("Impossibile creare un file temporaneo nella cartella scelta")?;

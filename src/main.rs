@@ -2,14 +2,14 @@ use std::{fs::OpenOptions, io::Write, path::PathBuf, process::ExitCode, sync::at
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use subler_linux::media::{AudioMode, Document, ExportEvent, export};
-use subler_linux::metadata::{Client as MetadataClient, MediaKind, Provider, SearchQuery};
+use reelmux::media::{AudioMode, Document, ExportEvent, export};
+use reelmux::metadata::{Client as MetadataClient, MediaKind, Provider, SearchQuery};
 
 #[cfg(feature = "gui")]
 mod ui;
 
 #[derive(Parser)]
-#[command(version, about = "Editor MP4 per Linux, ispirato a Subler")]
+#[command(version, about = "ReelMux, editor MP4 per Linux")]
 struct Args {
     #[command(subcommand)]
     command: Option<Commands>,
@@ -36,7 +36,7 @@ enum Commands {
         #[arg(long)]
         aac: bool,
     },
-    /// Cerca metadati e locandine nei provider supportati da Subler.
+    /// Cerca metadati e locandine nei provider online supportati.
     Metadata {
         query: String,
         #[arg(long, default_value = "apple-tv")]

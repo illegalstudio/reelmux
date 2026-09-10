@@ -230,7 +230,7 @@ impl Client {
     pub fn new(credentials: Credentials) -> Self {
         let config = ureq::Agent::config_builder()
             .timeout_global(Some(Duration::from_secs(25)))
-            .user_agent(concat!("Subler-Linux/", env!("CARGO_PKG_VERSION")))
+            .user_agent(concat!("ReelMux/", env!("CARGO_PKG_VERSION")))
             .build();
         Self {
             agent: config.into(),

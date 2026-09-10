@@ -1,6 +1,6 @@
 # Provenienza e licenze
 
-Subler Linux è un progetto indipendente ispirato a Subler. Non è una versione
+ReelMux è un progetto indipendente ispirato a Subler. Non è una versione
 ufficiale di SublerApp. Il codice di questo prototipo è distribuito sotto GPL-2.0-only.
 
 ## Materiale recuperato da Subler
@@ -39,7 +39,7 @@ I provider hanno termini e requisiti di attribuzione propri:
 [Logos & Attribution](https://www.themoviedb.org/about/logos-attribution). Il
 marchio appartiene a TMDB e viene usato unicamente per l'attribuzione richiesta.
 
-Subler Linux richiede chiavi personali per TheMovieDB e TheTVDB. Non distribuisce
+ReelMux richiede chiavi personali per TheMovieDB e TheTVDB. Non distribuisce
 credenziali di terzi. Le immagini e i dati scaricati restano soggetti ai termini
 del provider selezionato.
 
@@ -51,5 +51,5 @@ GTK4 viene collegato alle librerie di sistema. FFmpeg e ffprobe vengono eseguiti
 come programmi esterni e non sono distribuiti in questo repository.
 Le opzioni di build e le licenze dei pacchetti FFmpeg dipendono dalla distribuzione.
 
-L'icona SVG e il foglio di stile di Subler Linux sono nuovi e coperti dalla licenza
+L'icona SVG e il foglio di stile di ReelMux sono nuovi e coperti dalla licenza
 del progetto.

@@ -1,7 +1,7 @@
-# Subler Linux
+# ReelMux
 
-Un editor MP4 per Linux scritto in Rust e GTK4, ispirato a
-[Subler](https://subler.org/). Primo prototipo funzionante, con interfaccia in italiano.
+ReelMux è un editor MP4 per Linux scritto in Rust e GTK4, ispirato a
+[Subler](https://subler.org/). Il prototipo offre un'interfaccia in italiano.
 
 ## Funzioni disponibili
 
@@ -130,12 +130,12 @@ verificato senza un display e con `--no-default-features`.
 Per verificare anche i controlli GTK in una sessione grafica:
 
 ```sh
-cargo test --locked --bin subler-linux gui_roundtrip -- --ignored --test-threads=1
+cargo test --locked --bin reelmux gui_roundtrip -- --ignored --test-threads=1
 ```
 
 Questo test apre una finestra con un video sintetico, modifica titolo, lingua,
 inclusione e flag dei sottotitoli, quindi esporta e controlla il risultato.
-Richiede anche Python 3. Impostando `SUBLER_TEST_SCREENSHOT` a un percorso PNG
+Richiede anche Python 3. Impostando `REELMUX_TEST_SCREENSHOT` a un percorso PNG
 si può acquisire la sola finestra del test, senza catturare il resto del desktop.
 
 ## Limiti del prototipo

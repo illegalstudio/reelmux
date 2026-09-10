@@ -1,11 +1,11 @@
 [package]
-name = "subler-linux"
+name = "reelmux"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.92"
-description = "A Linux MP4 track and metadata editor inspired by Subler"
+description = "An MP4 track and metadata editor for Linux"
 license = "GPL-2.0-only"
-default-run = "subler-linux"
+default-run = "reelmux"
 
 [features]
 default = ["gui"]

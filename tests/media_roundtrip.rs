@@ -1,11 +1,11 @@
+use reelmux::media::{AudioMode, Document, ExportEvent, export};
+use reelmux::metadata::{Artwork, MetadataResult, Provider};
 use std::{
     fs,
     path::Path,
     process::Command,
     sync::atomic::{AtomicBool, Ordering},
 };
-use subler_linux::media::{AudioMode, Document, ExportEvent, export};
-use subler_linux::metadata::{Artwork, MetadataResult, Provider};
 
 fn ffmpeg(args: &[&str]) {
     let output = Command::new("ffmpeg")
@@ -134,7 +134,7 @@ fn remux_keeps_packets_chapters_and_writes_subtitle_metadata() {
         e.unwrap()
             .file_name()
             .to_string_lossy()
-            .starts_with(".subler-")
+            .starts_with(".reelmux-")
     }));
 }
 
@@ -202,7 +202,7 @@ fn rejects_overwrite_invalid_selection_language_and_cancellation() {
         e.unwrap()
             .file_name()
             .to_string_lossy()
-            .starts_with(".subler-")
+            .starts_with(".reelmux-")
     }));
 }
 
@@ -271,7 +271,7 @@ fn imported_metadata_and_poster_are_written_to_mp4() {
     let tag = mp4ameta::Tag::read_from_path(&destination).unwrap();
     assert_eq!(
         tag.strings_of(&mp4ameta::FreeformIdent::new_static(
-            "io.github.sublerlinux.metadata",
+            "io.github.nahime0.ReelMux.metadata",
             "director"
         ))
         .next(),
@@ -279,7 +279,7 @@ fn imported_metadata_and_poster_are_written_to_mp4() {
     );
     assert_eq!(
         tag.strings_of(&mp4ameta::FreeformIdent::new_static(
-            "io.github.sublerlinux.metadata",
+            "io.github.nahime0.ReelMux.metadata",
             "provider"
         ))
         .next(),
@@ -292,6 +292,23 @@ fn imported_metadata_and_poster_are_written_to_mp4() {
     );
     assert!(!output.tracks.iter().any(|track| track.attached_picture));
     assert!(!output.tracks.iter().any(|track| track.kind == "data"));
+
+    let legacy = dir.path().join("legacy-metadata.mp4");
+    fs::copy(&destination, &legacy).unwrap();
+    let mut legacy_tag = mp4ameta::Tag::read_from_path(&legacy).unwrap();
+    legacy_tag.remove_data_of(&mp4ameta::FreeformIdent::new_static(
+        "io.github.nahime0.ReelMux.metadata",
+        "director",
+    ));
+    legacy_tag.set_data(
+        mp4ameta::FreeformIdent::new_static("io.github.sublerlinux.metadata", "director"),
+        mp4ameta::Data::Utf8("Regista precedente".into()),
+    );
+    legacy_tag.write_to_path(&legacy).unwrap();
+    assert_eq!(
+        Document::open(&legacy).unwrap().metadata["director"],
+        "Regista precedente"
+    );
 
     let reopened = dir.path().join("reopened.mp4");
     export(&output, &reopened, &AtomicBool::new(false), |_| {}).unwrap();
@@ -327,6 +344,6 @@ fn ffmpeg_failure_and_destination_race_leave_no_partial_output() {
         e.unwrap()
             .file_name()
             .to_string_lossy()
-            .starts_with(".subler-")
+            .starts_with(".reelmux-")
     }));
 }
