@@ -23,7 +23,7 @@ fn ffmpeg(args: &[&str]) {
 fn fixture(dir: &Path) -> Document {
     let chapters = dir.join("chapters.txt");
     fs::write(&chapters, ";FFMETADATA1\ntitle=Original title\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=0\nEND=1000\ntitle=Opening\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=1000\nEND=2000\ntitle=Ending\n").unwrap();
-    let input = dir.join("source with spaces è.mkv");
+    let input = dir.join("source with spaces Ω.mkv");
     ffmpeg(&[
         "-f",
         "lavfi",
@@ -54,7 +54,7 @@ fn fixture(dir: &Path) -> Document {
         "-c:a",
         "aac",
         "-metadata:s:a:0",
-        "language=ita",
+        "language=eng",
         input.to_str().unwrap(),
     ]);
     Document::open(&input).unwrap()
@@ -95,12 +95,12 @@ fn remux_keeps_packets_chapters_and_writes_subtitle_metadata() {
     let original = fs::read(&doc.path).unwrap();
     assert_eq!(doc.chapters.len(), 2);
     let srt = dir.path().join("captions ; $(literal).srt");
-    fs::write(&srt, "1\n00:00:00,200 --> 00:00:01,500\nCiao, città!\n").unwrap();
-    doc.add_subtitle(&srt, "it").unwrap();
+    fs::write(&srt, "1\n00:00:00,200 --> 00:00:01,500\nHello, city!\n").unwrap();
+    doc.add_subtitle(&srt, "en").unwrap();
     doc.tracks.last_mut().unwrap().forced = true;
     doc.metadata
-        .insert("title".into(), "Un film: città & mare $(literal)".into());
-    doc.metadata.insert("show".into(), "Una serie".into());
+        .insert("title".into(), "A movie: city & sea $(literal)".into());
+    doc.metadata.insert("show".into(), "A TV show".into());
     doc.metadata.insert("season_number".into(), "2".into());
     doc.metadata.insert("episode_sort".into(), "3".into());
     let destination = dir.path().join("result.mp4");
@@ -114,14 +114,14 @@ fn remux_keeps_packets_chapters_and_writes_subtitle_metadata() {
     assert!(completed);
     let output = Document::open(&destination).unwrap();
     assert_eq!(output.metadata["title"], doc.metadata["title"]);
-    assert_eq!(output.metadata["show"], "Una serie");
+    assert_eq!(output.metadata["show"], "A TV show");
     assert_eq!(output.metadata["season_number"], "2");
     assert_eq!(output.metadata["episode_sort"], "3");
     assert_eq!(output.chapters.len(), 2);
     assert_eq!(output.chapters[1].tags["title"], "Ending");
     let subtitle = output.tracks.iter().find(|t| t.kind == "subtitle").unwrap();
     assert_eq!(subtitle.codec, "mov_text");
-    assert_eq!(subtitle.language, "ita");
+    assert_eq!(subtitle.language, "eng");
     assert!(subtitle.forced);
     for stream in ["v:0", "a:0"] {
         assert_eq!(
@@ -191,7 +191,7 @@ fn rejects_overwrite_invalid_selection_language_and_cancellation() {
             cancel.store(true, Ordering::Relaxed);
         }
     });
-    assert!(result.unwrap_err().to_string().contains("annullata"));
+    assert!(result.unwrap_err().to_string().contains("cancelled"));
     assert!(!new_output.exists());
     cancel.store(false, Ordering::Relaxed);
     for t in &mut doc.tracks {
@@ -235,8 +235,8 @@ fn imported_metadata_and_poster_are_written_to_mp4() {
         poster.to_str().unwrap(),
     ]);
     let mut fields = std::collections::BTreeMap::new();
-    fields.insert("title".into(), "La città viola".into());
-    fields.insert("director".into(), "Giulia Bianchi".into());
+    fields.insert("title".into(), "The purple city".into());
+    fields.insert("director".into(), "Alex Morgan".into());
     fields.insert("provider".into(), "TheMovieDB".into());
     fields.insert("provider_id".into(), "42".into());
     doc.apply_metadata(
@@ -258,7 +258,7 @@ fn imported_metadata_and_poster_are_written_to_mp4() {
     let destination = dir.path().join("with-poster.mp4");
     export(&doc, &destination, &AtomicBool::new(false), |_| {}).unwrap();
     let output = Document::open(&destination).unwrap();
-    assert_eq!(output.metadata["title"], "La città viola");
+    assert_eq!(output.metadata["title"], "The purple city");
     assert_eq!(output.metadata["provider_id"], "42");
     assert_eq!(
         output.metadata["webpage_url"],
@@ -275,7 +275,7 @@ fn imported_metadata_and_poster_are_written_to_mp4() {
             "director"
         ))
         .next(),
-        Some("Giulia Bianchi")
+        Some("Alex Morgan")
     );
     assert_eq!(
         tag.strings_of(&mp4ameta::FreeformIdent::new_static(
@@ -302,12 +302,12 @@ fn imported_metadata_and_poster_are_written_to_mp4() {
     ));
     legacy_tag.set_data(
         mp4ameta::FreeformIdent::new_static("io.github.sublerlinux.metadata", "director"),
-        mp4ameta::Data::Utf8("Regista precedente".into()),
+        mp4ameta::Data::Utf8("Previous director".into()),
     );
     legacy_tag.write_to_path(&legacy).unwrap();
     assert_eq!(
         Document::open(&legacy).unwrap().metadata["director"],
-        "Regista precedente"
+        "Previous director"
     );
 
     let reopened = dir.path().join("reopened.mp4");
@@ -326,7 +326,7 @@ fn ffmpeg_failure_and_destination_race_leave_no_partial_output() {
     let destination = dir.path().join("raced.mp4");
     let result = export(&doc, &destination, &AtomicBool::new(false), |event| {
         if let ExportEvent::Stage(stage) = event
-            && stage.starts_with("Verifica")
+            && stage.starts_with("Verifying")
         {
             fs::write(&destination, b"created by another application").unwrap();
         }

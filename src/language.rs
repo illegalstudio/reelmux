@@ -18,7 +18,7 @@ pub fn languages() -> &'static [Language] {
     })
 }
 
-/// Normalize ISO language codes using the table adapted from MP42Foundation.
+/// Normalize ISO language codes using the bundled ISO table.
 pub fn normalize(code: &str) -> Option<&'static str> {
     let code = code.trim().to_ascii_lowercase();
     if code.is_empty() {
@@ -36,7 +36,7 @@ mod tests {
 
     #[test]
     fn accepts_short_and_bibliographic_codes() {
-        assert_eq!(normalize(" IT "), Some("ita"));
+        assert_eq!(normalize(" EN "), Some("eng"));
         assert_eq!(normalize("ger"), Some("deu"));
         assert_eq!(normalize("fre"), Some("fra"));
         assert_eq!(normalize(""), Some("und"));

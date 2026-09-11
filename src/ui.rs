@@ -96,9 +96,9 @@ impl MetadataBrowser {
         let artwork_only = mode == ImportMode::ArtworkOnly;
         let window = gtk::Window::builder()
             .title(if artwork_only {
-                "Cambia locandina"
+                "Change artwork"
             } else {
-                "Importa metadati"
+                "Import metadata"
             })
             .transient_for(&owner.window)
             .modal(true)
@@ -109,9 +109,9 @@ impl MetadataBrowser {
         margins(&root, 20);
         root.append(&label(
             if artwork_only {
-                "Cerca una nuova locandina senza modificare i metadati"
+                "Find new artwork without changing existing metadata"
             } else {
-                "Cerca film e serie nei provider online"
+                "Search online providers for movies and TV shows"
             },
             "section-title",
         ));
@@ -125,14 +125,14 @@ impl MetadataBrowser {
                 .map(|provider| provider.label())
                 .collect::<Vec<_>>(),
         );
-        let kind = gtk::DropDown::from_strings(&["Film", "Serie TV"]);
+        let kind = gtk::DropDown::from_strings(&["Movie", "TV show"]);
         let term = gtk::Entry::new();
         term.set_hexpand(true);
         let language = gtk::Entry::new();
-        language.set_text("it-IT");
+        language.set_text("en-US");
         language.set_width_chars(8);
         let country = gtk::Entry::new();
-        country.set_text("IT");
+        country.set_text("US");
         country.set_width_chars(4);
         let season = gtk::Entry::new();
         season.set_width_chars(4);
@@ -176,19 +176,19 @@ impl MetadataBrowser {
         }
         for (row, title, widget) in [
             (0, "Provider", provider.clone().upcast::<gtk::Widget>()),
-            (1, "Tipo", kind.clone().upcast()),
-            (2, "Titolo", term.clone().upcast()),
-            (3, "Lingua", language.clone().upcast()),
-            (4, "Paese", country.clone().upcast()),
-            (5, "Stagione", season.clone().upcast()),
-            (6, "Episodio", episode.clone().upcast()),
+            (1, "Type", kind.clone().upcast()),
+            (2, "Title", term.clone().upcast()),
+            (3, "Language", language.clone().upcast()),
+            (4, "Country", country.clone().upcast()),
+            (5, "Season", season.clone().upcast()),
+            (6, "Episode", episode.clone().upcast()),
         ] {
             form.attach(&label(title, "field-label"), 0, row, 1, 1);
             form.attach(&widget, 1, row, 1, 1);
         }
         root.append(&form);
         let credentials = label(
-            "TMDB: TMDB_API_TOKEN o TMDB_API_KEY. TVDB: TVDB_API_KEY e, se richiesto, TVDB_PIN.",
+            "TMDB: TMDB_API_TOKEN or TMDB_API_KEY. TVDB: TVDB_API_KEY and, when required, TVDB_PIN.",
             "muted",
         );
         credentials.set_wrap(true);
@@ -199,19 +199,19 @@ impl MetadataBrowser {
         )));
         let tmdb_logo = gtk::Image::from_gicon(&tmdb_icon);
         tmdb_logo.set_pixel_size(92);
-        tmdb_logo.set_tooltip_text(Some("Logo ufficiale TMDB"));
+        tmdb_logo.set_tooltip_text(Some("Official TMDB logo"));
         credits_row.append(&tmdb_logo);
         let credits = gtk::Label::new(None);
         credits.set_xalign(0.0);
         credits.set_wrap(true);
         credits.set_hexpand(true);
         credits.set_markup(
-            "<small>This product uses the TMDB API but is not endorsed or certified by TMDB. Metadati TheTVDB: <a href=\"https://thetvdb.com/\">thetvdb.com</a>.</small>",
+            "<small>This product uses the TMDB API but is not endorsed or certified by TMDB. TheTVDB metadata: <a href=\"https://thetvdb.com/\">thetvdb.com</a>.</small>",
         );
         credits_row.append(&credits);
         root.append(&credits_row);
         let action_row = gtk::Box::new(gtk::Orientation::Horizontal, 8);
-        let search = gtk::Button::with_label("Cerca");
+        let search = gtk::Button::with_label("Search");
         search.add_css_class("suggested-action");
         let spinner = gtk::Spinner::new();
         action_row.append(&search);
@@ -226,16 +226,16 @@ impl MetadataBrowser {
             .child(&results)
             .build();
         root.append(&scroll);
-        let status = label("Imposta la ricerca e scegli un risultato.", "muted");
+        let status = label("Configure the search and select a result.", "muted");
         status.set_wrap(true);
         root.append(&status);
         let footer = gtk::Box::new(gtk::Orientation::Horizontal, 8);
         footer.set_halign(gtk::Align::End);
-        let cancel = gtk::Button::with_label("Chiudi");
+        let cancel = gtk::Button::with_label("Close");
         let import = gtk::Button::with_label(if artwork_only {
-            "Mostra locandine"
+            "Show artwork"
         } else {
-            "Continua"
+            "Continue"
         });
         import.add_css_class("suggested-action");
         import.set_sensitive(false);
@@ -336,17 +336,17 @@ impl MetadataBrowser {
 
     fn initial_action_label(&self) -> &'static str {
         if self.mode == ImportMode::ArtworkOnly {
-            "Mostra locandine"
+            "Show artwork"
         } else {
-            "Continua"
+            "Continue"
         }
     }
 
     fn artwork_action_label(&self) -> &'static str {
         if self.mode == ImportMode::ArtworkOnly {
-            "Imposta locandina"
+            "Set artwork"
         } else {
-            "Importa metadati e locandina"
+            "Import metadata and artwork"
         }
     }
 
@@ -358,7 +358,7 @@ impl MetadataBrowser {
         } else {
             text.parse()
                 .map(Some)
-                .map_err(|_| anyhow::anyhow!("{name} deve essere un numero intero"))
+                .map_err(|_| anyhow::anyhow!("{name} must be an integer"))
         }
     }
 
@@ -377,8 +377,8 @@ impl MetadataBrowser {
             term: self.term.text().into(),
             language: self.language.text().into(),
             country: self.country.text().into(),
-            season: Self::optional_number(&self.season, "Stagione")?,
-            episode: Self::optional_number(&self.episode, "Episodio")?,
+            season: Self::optional_number(&self.season, "Season")?,
+            episode: Self::optional_number(&self.episode, "Episode")?,
         })
     }
 
@@ -390,14 +390,14 @@ impl MetadataBrowser {
             Ok(query) => query,
             Err(error) => {
                 if let Some(owner) = self.owner.upgrade() {
-                    owner.error("Ricerca non valida", error);
+                    owner.error("Invalid search", error);
                 }
                 return;
             }
         };
         self.set_busy(true);
         self.status
-            .set_text(&format!("Ricerca su {}…", query.provider));
+            .set_text(&format!("Searching {}...", query.provider));
         *self.resolved.borrow_mut() = None;
         self.artwork_choices.borrow_mut().clear();
         self.import.set_label(self.initial_action_label());
@@ -419,12 +419,9 @@ impl MetadataBrowser {
                     match result {
                         Ok(hits) => browser.display_hits(query.clone(), hits),
                         Err(error) => {
-                            browser.status.set_text("Ricerca non riuscita.");
+                            browser.status.set_text("Search failed.");
                             if let Some(owner) = browser.owner.upgrade() {
-                                owner.error(
-                                    "Ricerca dei metadati non riuscita",
-                                    format!("{error:#}"),
-                                );
+                                owner.error("Metadata search failed", format!("{error:#}"));
                             }
                         }
                     }
@@ -432,7 +429,7 @@ impl MetadataBrowser {
                 }
                 Err(mpsc::TryRecvError::Disconnected) => {
                     browser.set_busy(false);
-                    browser.status.set_text("Ricerca interrotta.");
+                    browser.status.set_text("Search stopped unexpectedly.");
                     glib::ControlFlow::Break
                 }
                 Err(mpsc::TryRecvError::Empty) => glib::ControlFlow::Continue,
@@ -469,9 +466,9 @@ impl MetadataBrowser {
         }
         let count = self.hits.borrow().len();
         self.status.set_text(if count == 0 {
-            "Nessun risultato. Prova un altro titolo, paese o provider."
+            "No results. Try another title, country, or provider."
         } else {
-            "Seleziona un risultato da importare."
+            "Select a result to import."
         });
         if count > 0
             && let Some(row) = self.results.first_child().and_downcast::<gtk::ListBoxRow>()
@@ -499,8 +496,7 @@ impl MetadataBrowser {
             return;
         };
         self.set_busy(true);
-        self.status
-            .set_text("Caricamento dei dettagli e delle locandine…");
+        self.status.set_text("Loading details and artwork...");
         let (tx, rx) = mpsc::channel();
         thread::spawn(move || {
             let client = MetadataClient::default();
@@ -539,26 +535,23 @@ impl MetadataBrowser {
                                         let provider = metadata.provider;
                                         owner.apply_imported_metadata(metadata, None);
                                         owner.status.set_text(&format!(
-                                            "Metadati importati da {provider}. Nessuna locandina disponibile."
+                                            "Metadata imported from {provider}. No artwork is available."
                                         ));
                                     }
                                     browser.window.close();
                                 } else {
-                                    browser.status.set_text(
-                                        "Il risultato selezionato non contiene locandine.",
-                                    );
+                                    browser
+                                        .status
+                                        .set_text("The selected result does not contain artwork.");
                                 }
                             } else {
                                 browser.display_artworks(metadata, choices);
                             }
                         }
                         Err(error) => {
-                            browser.status.set_text("Importazione non riuscita.");
+                            browser.status.set_text("Import failed.");
                             if let Some(owner) = browser.owner.upgrade() {
-                                owner.error(
-                                    "Caricamento delle locandine non riuscito",
-                                    format!("{error:#}"),
-                                );
+                                owner.error("Unable to load artwork", format!("{error:#}"));
                             }
                         }
                     }
@@ -566,7 +559,7 @@ impl MetadataBrowser {
                 }
                 Err(mpsc::TryRecvError::Disconnected) => {
                     browser.set_busy(false);
-                    browser.status.set_text("Importazione interrotta.");
+                    browser.status.set_text("Import stopped unexpectedly.");
                     glib::ControlFlow::Break
                 }
                 Err(mpsc::TryRecvError::Empty) => glib::ControlFlow::Continue,
@@ -613,7 +606,7 @@ impl MetadataBrowser {
         self.import.set_label(self.artwork_action_label());
         let count = self.artwork_choices.borrow().len();
         self.status.set_text(&format!(
-            "Scegli una delle {count} locandine disponibili. La prima è preselezionata."
+            "Choose one of {count} available artwork images. The first is selected by default."
         ));
         if let Some(row) = self.results.first_child().and_downcast::<gtk::ListBoxRow>() {
             self.results.select_row(Some(&row));
@@ -632,7 +625,7 @@ impl MetadataBrowser {
             return;
         };
         self.set_busy(true);
-        self.status.set_text("Download della locandina originale…");
+        self.status.set_text("Downloading full-size artwork...");
         let (tx, rx) = mpsc::channel();
         thread::spawn(move || {
             let result = MetadataClient::default()
@@ -655,25 +648,22 @@ impl MetadataBrowser {
                                     let provider = artwork.provider;
                                     owner.apply_imported_artwork(artwork);
                                     owner.status.set_text(&format!(
-                                        "Locandina impostata da {provider}. Esporta per salvarla nel file."
+                                        "Artwork set from {provider}. Export to save it to the file."
                                     ));
                                 } else {
                                     let provider = metadata.provider;
                                     owner.apply_imported_metadata(metadata, Some(artwork));
                                     owner.status.set_text(&format!(
-                                        "Metadati e locandina importati da {provider}. Esporta per salvarli nel file."
+                                        "Metadata and artwork imported from {provider}. Export to save them to the file."
                                     ));
                                 }
                             }
                             browser.window.close();
                         }
                         Err(error) => {
-                            browser.status.set_text("Download non riuscito.");
+                            browser.status.set_text("Download failed.");
                             if let Some(owner) = browser.owner.upgrade() {
-                                owner.error(
-                                    "Download della locandina non riuscito",
-                                    format!("{error:#}"),
-                                );
+                                owner.error("Artwork download failed", format!("{error:#}"));
                             }
                         }
                     }
@@ -681,7 +671,7 @@ impl MetadataBrowser {
                 }
                 Err(mpsc::TryRecvError::Disconnected) => {
                     browser.set_busy(false);
-                    browser.status.set_text("Download interrotto.");
+                    browser.status.set_text("Download stopped unexpectedly.");
                     glib::ControlFlow::Break
                 }
                 Err(mpsc::TryRecvError::Empty) => glib::ControlFlow::Continue,
@@ -706,13 +696,13 @@ impl Ui {
         brand.append(&logo);
         brand.append(&label("ReelMux", "heading"));
         header.set_title_widget(Some(&brand));
-        let open = gtk::Button::with_label("Apri file");
-        open.set_tooltip_text(Some("Apri un file (Ctrl+O)"));
+        let open = gtk::Button::with_label("Open file");
+        open.set_tooltip_text(Some("Open a file (Ctrl+O)"));
         header.pack_start(&open);
-        let save = gtk::Button::with_label("Esporta MP4…");
+        let save = gtk::Button::with_label("Export MP4...");
         save.add_css_class("suggested-action");
         save.set_sensitive(false);
-        save.set_tooltip_text(Some("Esporta un nuovo MP4 (Ctrl+Shift+S)"));
+        save.set_tooltip_text(Some("Export a new MP4 (Ctrl+Shift+S)"));
         header.pack_end(&save);
         window.set_titlebar(Some(&header));
         let root = gtk::Box::new(gtk::Orientation::Vertical, 0);
@@ -728,9 +718,9 @@ impl Ui {
         icon.add_css_class("hero-icon");
         empty.append(&icon);
         for (text, class) in [
-            ("Le tue tracce. Il tuo MP4.", "hero-title"),
+            ("Your tracks. Your MP4.", "hero-title"),
             (
-                "Organizza audio e sottotitoli, modifica i metadati\ne salva una nuova copia del tuo video.",
+                "Organize audio and subtitles, edit metadata,\nand save a new copy of your video.",
                 "muted",
             ),
         ] {
@@ -739,13 +729,13 @@ impl Ui {
             w.set_halign(gtk::Align::Center);
             empty.append(&w);
         }
-        let empty_open = gtk::Button::with_label("Scegli un file…");
+        let empty_open = gtk::Button::with_label("Choose a file...");
         empty_open.add_css_class("suggested-action");
         empty_open.add_css_class("pill");
         empty_open.set_halign(gtk::Align::Center);
         empty.append(&empty_open);
         let hint = label(
-            "MP4 · M4V · MOV · MKV\nPuoi anche trascinare qui un file",
+            "MP4 · M4V · MOV · MKV\nYou can also drop a file here",
             "muted",
         );
         hint.set_justify(gtk::Justification::Center);
@@ -770,11 +760,11 @@ impl Ui {
         let tracks_panel = gtk::Box::new(gtk::Orientation::Vertical, 12);
         tracks_panel.set_margin_end(16);
         let bar = gtk::Box::new(gtk::Orientation::Horizontal, 8);
-        let title = label("Tracce", "section-title");
+        let title = label("Tracks", "section-title");
         title.set_hexpand(true);
         bar.append(&title);
-        let add = gtk::Button::with_label("+ Sottotitoli SRT");
-        add.set_tooltip_text(Some("Aggiungi SRT (Ctrl+I)"));
+        let add = gtk::Button::with_label("+ SRT subtitles");
+        add.set_tooltip_text(Some("Add SRT subtitles (Ctrl+I)"));
         bar.append(&add);
         tracks_panel.append(&bar);
         let model = gio::ListStore::new::<glib::BoxedAnyObject>();
@@ -790,7 +780,7 @@ impl Ui {
         scroll.add_css_class("card");
         tracks_panel.append(&scroll);
         let notes = label(
-            "Seleziona le tracce da includere. Il video viene copiato.\nI sottotitoli testuali vengono convertiti in testo MP4.",
+            "Select the tracks to include. Video streams are copied.\nText subtitles are converted to MP4 text.",
             "muted",
         );
         notes.set_wrap(true);
@@ -803,11 +793,11 @@ impl Ui {
         meta.set_size_request(280, -1);
         meta.set_margin_start(16);
         let metadata_bar = gtk::Box::new(gtk::Orientation::Horizontal, 8);
-        let metadata_title = label("Metadati", "section-title");
+        let metadata_title = label("Metadata", "section-title");
         metadata_title.set_hexpand(true);
         metadata_bar.append(&metadata_title);
-        let metadata_search = gtk::Button::with_label("Cerca online…");
-        metadata_search.set_tooltip_text(Some("Importa metadati e locandina (Ctrl+M)"));
+        let metadata_search = gtk::Button::with_label("Search online...");
+        metadata_search.set_tooltip_text(Some("Import metadata and artwork (Ctrl+M)"));
         metadata_bar.append(&metadata_search);
         meta.append(&metadata_bar);
         let artwork = gtk::Picture::new();
@@ -816,22 +806,20 @@ impl Ui {
         artwork.set_can_shrink(true);
         artwork.add_css_class("card");
         meta.append(&artwork);
-        let artwork_caption = label("Nessuna locandina importata", "muted");
+        let artwork_caption = label("No artwork imported", "muted");
         artwork_caption.set_wrap(true);
         meta.append(&artwork_caption);
-        let artwork_search = gtk::Button::with_label("Cambia locandina…");
-        artwork_search.set_tooltip_text(Some(
-            "Cerca e imposta soltanto una nuova locandina (Ctrl+Shift+M)",
-        ));
+        let artwork_search = gtk::Button::with_label("Change artwork...");
+        artwork_search.set_tooltip_text(Some("Search for and set new artwork only (Ctrl+Shift+M)"));
         meta.append(&artwork_search);
         let mut fields = Vec::new();
         for (key, title, placeholder) in [
-            ("title", "Titolo", "Titolo del film o dell’episodio"),
-            ("date", "Data di uscita", "2026 oppure 2026-09-09"),
-            ("genre", "Genere", "Drammatico, documentario…"),
-            ("show", "Serie TV", "Nome della serie"),
-            ("season_number", "Stagione", "1"),
-            ("episode_sort", "Episodio", "1"),
+            ("title", "Title", "Movie or episode title"),
+            ("date", "Release date", "2026 or 2026-09-09"),
+            ("genre", "Genre", "Drama, documentary..."),
+            ("show", "TV show", "Show title"),
+            ("season_number", "Season", "1"),
+            ("episode_sort", "Episode", "1"),
         ] {
             let group = gtk::Box::new(gtk::Orientation::Vertical, 5);
             group.append(&label(title, "field-label"));
@@ -845,7 +833,7 @@ impl Ui {
             meta.append(&group);
             fields.push((key, entry));
         }
-        meta.append(&label("Descrizione", "field-label"));
+        meta.append(&label("Description", "field-label"));
         let description = gtk::TextView::new();
         description.set_wrap_mode(gtk::WrapMode::WordChar);
         description.set_top_margin(8);
@@ -874,10 +862,10 @@ impl Ui {
         footer.add_css_class("footer");
         margins(&footer, 16);
         let row = gtk::Box::new(gtk::Orientation::Horizontal, 12);
-        let status = label("Pronto. Il file originale resta invariato.", "muted");
+        let status = label("Ready. The original file remains unchanged.", "muted");
         status.set_hexpand(true);
         status.set_wrap(true);
-        let cancel_button = gtk::Button::with_label("Annulla");
+        let cancel_button = gtk::Button::with_label("Cancel");
         cancel_button.set_visible(false);
         row.append(&status);
         row.append(&cancel_button);
@@ -1028,16 +1016,15 @@ impl Ui {
                     ui.closing.set(true);
                     ui.request_cancel();
                 } else {
-                    ui.status
-                        .set_text("Attendi il completamento dell’analisi del file.");
+                    ui.status.set_text("Wait for file analysis to complete.");
                 }
                 return glib::Propagation::Stop;
             }
             if ui.dirty.get() {
                 ui.confirm(
-                    "Chiudere senza esportare?",
-                    "Le modifiche non esportate andranno perse.",
-                    "Chiudi",
+                    "Close without exporting?",
+                    "Unsaved changes will be lost.",
+                    "Close",
                     |ui| {
                         ui.closing.set(true);
                         ui.window.close();
@@ -1060,7 +1047,7 @@ impl Ui {
         let dialog = gtk::AlertDialog::builder()
             .message(title)
             .detail(detail)
-            .buttons(["Annulla", accept])
+            .buttons(["Cancel", accept])
             .cancel_button(0)
             .default_button(0)
             .build();
@@ -1075,15 +1062,14 @@ impl Ui {
     }
     fn mark_dirty(&self) {
         self.dirty.set(true);
-        self.window
-            .set_title(Some("ReelMux · modifiche non esportate"));
+        self.window.set_title(Some("ReelMux · unsaved changes"));
         self.refresh_summary();
     }
     fn refresh_summary(&self) {
         if let Some(doc) = self.document.borrow().as_ref() {
             let n = doc.tracks.iter().filter(|t| t.enabled).count();
             self.summary.set_text(&format!(
-                "{} · {:.1} MB · {} di {} tracce incluse",
+                "{} · {:.1} MB · {} of {} tracks included",
                 media::duration_label(doc.duration),
                 doc.size as f64 / 1_000_000.0,
                 n,
@@ -1152,7 +1138,7 @@ impl Ui {
                 Ok(texture) => {
                     self.artwork.set_paintable(Some(&texture));
                     self.artwork_caption.set_text(&format!(
-                        "Locandina da {} · {:.1} MB",
+                        "Artwork from {} · {:.1} MB",
                         artwork.provider,
                         artwork.bytes.len() as f64 / 1_000_000.0
                     ));
@@ -1160,20 +1146,20 @@ impl Ui {
                 Err(error) => {
                     self.artwork.set_paintable(gdk::Paintable::NONE);
                     self.artwork_caption
-                        .set_text(&format!("Anteprima non disponibile: {error}"));
+                        .set_text(&format!("Preview unavailable: {error}"));
                 }
             }
         } else {
             self.artwork.set_paintable(gdk::Paintable::NONE);
-            self.artwork_caption.set_text("Nessuna locandina importata");
+            self.artwork_caption.set_text("No artwork imported");
         }
         let details = [
             ("Provider", "provider"),
-            ("Regia", "director"),
+            ("Director", "director"),
             ("Cast", "cast"),
             ("Studio", "studio"),
-            ("Rete", "network"),
-            ("Crediti", "metadata_attribution"),
+            ("Network", "network"),
+            ("Credits", "metadata_attribution"),
         ]
         .into_iter()
         .filter_map(|(label, key)| {
@@ -1190,7 +1176,7 @@ impl Ui {
         if let Some(cancel) = self.cancel.borrow().as_ref() {
             cancel.store(true, Ordering::Relaxed);
         }
-        self.status.set_text("Annullamento in corso…");
+        self.status.set_text("Cancelling...");
         self.cancel_button.set_sensitive(false);
     }
     fn choose(self: &Rc<Self>, action: &'static str) {
@@ -1199,11 +1185,11 @@ impl Ui {
         }
         let (title, patterns): (&str, &[&str]) = match action {
             "open" => (
-                "Apri un file multimediale",
+                "Open a media file",
                 &["*.mp4", "*.m4v", "*.mkv", "*.mov", "*.MP4", "*.MKV"],
             ),
-            "subtitle" => ("Aggiungi sottotitoli SRT", &["*.srt", "*.SRT"]),
-            _ => ("Esporta un nuovo MP4", &["*.mp4"]),
+            "subtitle" => ("Add SRT subtitles", &["*.srt", "*.SRT"]),
+            _ => ("Export a new MP4", &["*.mp4"]),
         };
         let filter = gtk::FileFilter::new();
         filter.set_name(Some(title));
@@ -1211,7 +1197,7 @@ impl Ui {
             filter.add_pattern(p);
         }
         let all = gtk::FileFilter::new();
-        all.set_name(Some("Tutti i file"));
+        all.set_name(Some("All files"));
         all.add_pattern("*");
         let filters = gio::ListStore::new::<gtk::FileFilter>();
         filters.append(&filter);
@@ -1248,7 +1234,7 @@ impl Ui {
                         }
                     }
                     Err(error) if !error.matches(gtk::DialogError::Dismissed) => {
-                        ui.error("Selezione del file non riuscita", error)
+                        ui.error("File selection failed", error)
                     }
                     _ => (),
                 }
@@ -1280,20 +1266,20 @@ impl Ui {
             return;
         }
         self.confirm(
-            "Aprire un altro file?",
-            "Le modifiche non esportate al documento attuale andranno perse.",
-            "Apri",
+            "Open another file?",
+            "Unsaved changes to the current document will be lost.",
+            "Open",
             move |ui| ui.load(path),
         );
     }
     fn load(self: &Rc<Self>, path: PathBuf) {
-        self.work_document("Analisi del file…", false, move || Document::open(&path));
+        self.work_document("Analyzing file...", false, move || Document::open(&path));
     }
     fn import_subtitle(self: &Rc<Self>, path: PathBuf) {
         let Some(mut doc) = self.document.borrow().clone() else {
             return;
         };
-        self.work_document("Importazione dei sottotitoli…", true, move || {
+        self.work_document("Importing subtitles...", true, move || {
             doc.add_subtitle(&path, "und")?;
             Ok(doc)
         });
@@ -1327,20 +1313,19 @@ impl Ui {
                             ui.display_document(doc);
                             if edited {
                                 ui.mark_dirty();
-                                ui.status.set_text(
-                                    "Sottotitoli aggiunti. Imposta la lingua nella tabella.",
-                                );
+                                ui.status
+                                    .set_text("Subtitles added. Set their language in the table.");
                             }
                         }
-                        Err(error) => ui.error("Impossibile leggere il file", format!("{error:#}")),
+                        Err(error) => ui.error("Unable to read the file", format!("{error:#}")),
                     }
                     glib::ControlFlow::Break
                 }
                 Err(mpsc::TryRecvError::Disconnected) => {
                     ui.set_busy(false);
                     ui.error(
-                        "Analisi interrotta",
-                        "Il processo di analisi è terminato inaspettatamente.",
+                        "Analysis stopped unexpectedly",
+                        "The analysis process stopped unexpectedly.",
                     );
                     glib::ControlFlow::Break
                 }
@@ -1364,7 +1349,7 @@ impl Ui {
                 .unwrap_or(""),
         );
         self.chapters.set_text(&format!(
-            "{} capitoli originali da conservare",
+            "{} source chapters will be preserved",
             doc.chapters.len()
         ));
         self.refresh_import_preview(&doc);
@@ -1381,9 +1366,9 @@ impl Ui {
         self.window.set_title(Some("ReelMux"));
         self.refresh_summary();
         self.status.set_text(if unsupported {
-            "Alcune tracce non supportate sono escluse. Passa sul codec per i dettagli."
+            "Some unsupported tracks are excluded. Point to a codec for details."
         } else {
-            "Modifica le tracce e i metadati, poi esporta una nuova copia MP4."
+            "Edit tracks and metadata, then export a new MP4 copy."
         });
     }
     fn start_export(self: &Rc<Self>, path: PathBuf) {
@@ -1396,7 +1381,7 @@ impl Ui {
         let cancel = Arc::new(AtomicBool::new(false));
         *self.cancel.borrow_mut() = Some(cancel.clone());
         self.set_busy(true);
-        self.status.set_text("Preparazione dell’esportazione…");
+        self.status.set_text("Preparing export...");
         enum Event {
             Update(ExportEvent),
             Done(Result<()>),
@@ -1433,17 +1418,13 @@ impl Ui {
                             Ok(()) => {
                                 ui.dirty.set(false);
                                 ui.window.set_title(Some("ReelMux"));
-                                ui.status.set_text(&format!(
-                                    "Esportazione completata: {}",
-                                    path.display()
-                                ));
+                                ui.status
+                                    .set_text(&format!("Export complete: {}", path.display()));
                             }
-                            Err(_) if cancelled => ui.status.set_text(
-                                "Esportazione annullata. Nessun file di destinazione creato.",
-                            ),
-                            Err(error) => {
-                                ui.error("Esportazione non riuscita", format!("{error:#}"))
-                            }
+                            Err(_) if cancelled => ui
+                                .status
+                                .set_text("Export cancelled. No destination file was created."),
+                            Err(error) => ui.error("Export failed", format!("{error:#}")),
                         }
                         if ui.closing.get() {
                             ui.window.close();
@@ -1454,8 +1435,8 @@ impl Ui {
                         *ui.cancel.borrow_mut() = None;
                         ui.set_busy(false);
                         ui.error(
-                            "Esportazione interrotta",
-                            "Il processo è terminato inaspettatamente.",
+                            "Export stopped unexpectedly",
+                            "The process stopped unexpectedly.",
                         );
                         return glib::ControlFlow::Break;
                     }
@@ -1486,13 +1467,13 @@ impl Ui {
     }
     fn add_columns(self: &Rc<Self>, table: &gtk::ColumnView) {
         for (title, field) in [
-            ("Usa", "enabled"),
-            ("Traccia", "track"),
-            ("Nome", "title"),
-            ("Lingua", "language"),
-            ("Uscita", "mode"),
-            ("Predef.", "default"),
-            ("Forzati", "forced"),
+            ("Use", "enabled"),
+            ("Track", "track"),
+            ("Name", "title"),
+            ("Language", "language"),
+            ("Output", "mode"),
+            ("Default", "default"),
+            ("Forced", "forced"),
         ] {
             let factory = gtk::SignalListItemFactory::new();
             let weak = Rc::downgrade(self);
@@ -1532,7 +1513,7 @@ impl Ui {
                         item.set_child(Some(&b));
                     }
                     "mode" => {
-                        let dropdown = gtk::DropDown::from_strings(&["Copia", "AAC"]);
+                        let dropdown = gtk::DropDown::from_strings(&["Copy", "AAC"]);
                         let weak = weak.clone();
                         let item_weak = item.downgrade();
                         dropdown.connect_selected_notify(move |dropdown| {
@@ -1565,9 +1546,9 @@ impl Ui {
                         entry.set_has_frame(false);
                         entry.set_width_chars(if field == "language" { 5 } else { 12 });
                         entry.set_tooltip_text(Some(if field == "language" {
-                            "Codice: it / ita, en / eng, de / deu…"
+                            "Code: en / eng, de / deu, fr / fra..."
                         } else {
-                            "Nome della traccia"
+                            "Track name"
                         }));
                         if field == "language" {
                             entry.set_max_length(3);
@@ -1628,8 +1609,8 @@ impl Ui {
                             let kind = match t.kind.as_str() {
                                 "video" => "Video",
                                 "audio" => "Audio",
-                                "subtitle" => "Sottotitoli",
-                                _ => "Dati",
+                                "subtitle" => "Subtitles",
+                                _ => "Data",
                             };
                             first.set_text(&format!("{kind} · {}", t.codec.to_uppercase()));
                             second.set_text(&t.details);
@@ -1702,7 +1683,7 @@ pub fn run(path: Option<PathBuf>) -> Result<()> {
     let status = app.run_with_args::<&str>(&[]);
     anyhow::ensure!(
         status == glib::ExitCode::SUCCESS,
-        "L’applicazione si è chiusa con un errore"
+        "The application exited with an error"
     );
     Ok(())
 }
@@ -1783,16 +1764,16 @@ mod tests {
         assert!(poster_result.status.success());
         let ui = Ui::new(&app);
         ui.window.present();
-        ui.load(dir.path().join("Viaggio-notturno.mkv"));
+        ui.load(dir.path().join("Night-journey.mkv"));
         pump_until(|| !ui.busy.get() && ui.document.borrow().is_some());
         ui.fields
             .iter()
             .find(|(key, _)| *key == "title")
             .unwrap()
             .1
-            .set_text("Viaggio notturno - Prova GUI");
+            .set_text("Night journey - GUI test");
         assert!(ui.dirty.get());
-        ui.import_subtitle(dir.path().join("Italiano.srt"));
+        ui.import_subtitle(dir.path().join("English.srt"));
         pump_until(|| !ui.busy.get());
         pump_until(|| {
             descendants(ui.window.upcast_ref())
@@ -1805,31 +1786,31 @@ mod tests {
         let entries: Vec<_> = widgets
             .iter()
             .filter_map(|w| w.downcast_ref::<gtk::Entry>())
-            .filter(|w| w.tooltip_text().is_some_and(|s| s.contains("it / ita")))
+            .filter(|w| w.tooltip_text().is_some_and(|s| s.contains("en / eng")))
             .collect();
-        entries.last().unwrap().set_text("it");
+        entries.last().unwrap().set_text("en");
         let include: Vec<_> = widgets
             .iter()
             .filter_map(|w| w.downcast_ref::<gtk::CheckButton>())
-            .filter(|w| w.tooltip_text().as_deref() == Some("Usa"))
+            .filter(|w| w.tooltip_text().as_deref() == Some("Use"))
             .collect();
         include[2].set_active(false);
         let forced: Vec<_> = widgets
             .iter()
             .filter_map(|w| w.downcast_ref::<gtk::CheckButton>())
-            .filter(|w| w.tooltip_text().as_deref() == Some("Forzati"))
+            .filter(|w| w.tooltip_text().as_deref() == Some("Forced"))
             .collect();
         forced.last().unwrap().set_active(true);
         assert_eq!(ui.document.borrow().as_ref().unwrap().tracks.len(), 4);
         assert_eq!(
             ui.document.borrow().as_ref().unwrap().metadata["title"],
-            "Viaggio notturno - Prova GUI"
+            "Night journey - GUI test"
         );
         ui.show_metadata_browser(ImportMode::MetadataAndArtwork);
         let browser = ui.metadata_browser.borrow().as_ref().unwrap().clone();
         assert_eq!(browser.provider.selected(), 0);
         assert_eq!(browser.kind.selected(), 0);
-        assert_eq!(browser.term.text(), "Viaggio notturno - Prova GUI");
+        assert_eq!(browser.term.text(), "Night journey - GUI test");
         assert!(!browser.season.is_sensitive());
         browser.kind.set_selected(1);
         assert!(browser.season.is_sensitive());
@@ -1844,7 +1825,7 @@ mod tests {
                 provider: Provider::AppleTv,
                 url: "https://example.test/wide.jpg".into(),
                 thumbnail_url: "https://example.test/wide-small.jpg".into(),
-                label: "Poster panoramico".into(),
+                label: "Wide poster".into(),
             },
         ];
         browser.display_artworks(
@@ -1862,7 +1843,7 @@ mod tests {
         assert_eq!(browser.selected.get(), Some(0));
         assert_eq!(
             browser.import.label().as_deref(),
-            Some("Importa metadati e locandina")
+            Some("Import metadata and artwork")
         );
         if let Some(path) = std::env::var_os("REELMUX_TEST_BROWSER_SCREENSHOT") {
             let mut frames = 0;
@@ -1889,10 +1870,10 @@ mod tests {
         browser.window.close();
         let artwork_browser = MetadataBrowser::new(&ui, ImportMode::ArtworkOnly);
         assert_eq!(artwork_browser.mode, ImportMode::ArtworkOnly);
-        assert_eq!(artwork_browser.term.text(), "Viaggio notturno - Prova GUI");
+        assert_eq!(artwork_browser.term.text(), "Night journey - GUI test");
         assert_eq!(
             artwork_browser.import.label().as_deref(),
-            Some("Mostra locandine")
+            Some("Show artwork")
         );
         artwork_browser.window.close();
         let metadata_before = ui.document.borrow().as_ref().unwrap().metadata.clone();
@@ -1944,16 +1925,16 @@ mod tests {
         ui.start_export(output.clone());
         pump_until(|| !ui.busy.get());
         assert!(
-            ui.status.text().starts_with("Esportazione completata"),
+            ui.status.text().starts_with("Export complete"),
             "{}",
             ui.status.text()
         );
         assert!(!ui.dirty.get());
         let doc = Document::open(&output).unwrap();
-        assert_eq!(doc.metadata["title"], "Viaggio notturno - Prova GUI");
+        assert_eq!(doc.metadata["title"], "Night journey - GUI test");
         assert_eq!(doc.tracks.iter().filter(|t| t.kind == "audio").count(), 1);
         let subtitle = doc.tracks.iter().find(|t| t.kind == "subtitle").unwrap();
-        assert_eq!(subtitle.language, "ita");
+        assert_eq!(subtitle.language, "eng");
         assert!(subtitle.forced);
         assert_eq!(doc.chapters.len(), 2);
         assert!(doc.artwork.is_some());

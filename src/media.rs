@@ -64,13 +64,13 @@ pub struct Track {
 impl Track {
     pub fn operation(&self) -> &str {
         if self.unsupported.is_some() {
-            "Non supportata"
+            "Unsupported"
         } else if self.kind == "subtitle" {
-            "Testo MP4"
+            "MP4 text"
         } else if self.kind == "audio" && self.audio_mode == AudioMode::Aac {
-            "Converti AAC"
+            "Convert to AAC"
         } else {
-            "Copia"
+            "Copy"
         }
     }
 }
@@ -149,12 +149,8 @@ fn metadata_key(key: &str) -> String {
 fn local_file(path: &Path) -> Result<PathBuf> {
     let path = path
         .canonicalize()
-        .with_context(|| format!("File non accessibile: {}", path.display()))?;
-    ensure!(
-        path.is_file(),
-        "Seleziona un file regolare: {}",
-        path.display()
-    );
+        .with_context(|| format!("File is not accessible: {}", path.display()))?;
+    ensure!(path.is_file(), "Select a regular file: {}", path.display());
     Ok(path)
 }
 
@@ -176,15 +172,15 @@ fn probe(path: &Path) -> Result<Probe> {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .context("Impossibile avviare ffprobe. Installa FFmpeg e verifica che sia nel PATH")?;
+        .context("Unable to start FFprobe. Install FFmpeg and make sure it is available in PATH")?;
     let mut stdout = child
         .stdout
         .take()
-        .context("ffprobe: stdout non disponibile")?;
+        .context("FFprobe: stdout is unavailable")?;
     let mut stderr = child
         .stderr
         .take()
-        .context("ffprobe: stderr non disponibile")?;
+        .context("FFprobe: stderr is unavailable")?;
     let output = thread::spawn(move || {
         let mut bytes = Vec::new();
         stdout.read_to_end(&mut bytes).map(|_| bytes)
@@ -203,22 +199,22 @@ fn probe(path: &Path) -> Result<Probe> {
             let _ = child.wait();
             let _ = output.join();
             let _ = errors.join();
-            bail!("Analisi interrotta: ffprobe non ha risposto entro 30 secondi");
+            bail!("Analysis stopped because FFprobe did not respond within 30 seconds");
         }
         thread::sleep(Duration::from_millis(20));
     };
     let output = output
         .join()
-        .map_err(|_| anyhow::anyhow!("Lettura ffprobe interrotta"))??;
+        .map_err(|_| anyhow::anyhow!("FFprobe output reader stopped unexpectedly"))??;
     let errors = errors
         .join()
-        .map_err(|_| anyhow::anyhow!("Lettura errori ffprobe interrotta"))??;
+        .map_err(|_| anyhow::anyhow!("FFprobe error reader stopped unexpectedly"))??;
     ensure!(
         status.success(),
-        "Il file non è leggibile come contenuto multimediale: {}",
+        "The file could not be read as media: {}",
         errors.trim()
     );
-    serde_json::from_slice(&output).context("Risposta ffprobe non valida")
+    serde_json::from_slice(&output).context("Invalid FFprobe response")
 }
 
 fn read_itunes_artwork(path: &Path, metadata: &BTreeMap<String, String>) -> Option<Artwork> {
@@ -272,7 +268,7 @@ impl Document {
     pub fn open(path: &Path) -> Result<Self> {
         let path = local_file(path)?;
         let result = probe(&path)?;
-        ensure!(!result.streams.is_empty(), "Il file non contiene tracce");
+        ensure!(!result.streams.is_empty(), "The file contains no tracks");
         let mut metadata: BTreeMap<_, _> = result
             .format
             .tags
@@ -303,20 +299,20 @@ impl Document {
                 _ => false,
             };
             let unsupported = (!supported).then(|| match stream.codec_type.as_str() {
-                "subtitle" => "Sottotitoli bitmap o formato non supportato: serve una conversione OCR esterna.".to_string(),
-                "video" => format!("Il codec {} non è previsto per la copia MP4 nel prototipo.", stream.codec_name),
-                _ => "Traccia dati o allegato: esclusa dall'esportazione del prototipo.".to_string(),
+                "subtitle" => "Bitmap subtitles or unsupported format: external OCR conversion is required.".to_string(),
+                "video" => format!("The {} codec is not supported for MP4 stream copy.", stream.codec_name),
+                _ => "Data track or attachment: excluded from export.".to_string(),
             });
             let language = tag(&stream.tags, "language");
             let language = language::normalize(&language).unwrap_or("und").to_owned();
             let title = tag(&stream.tags, "title");
             let title = if title.is_empty() { handler } else { title };
             let details = match stream.codec_type.as_str() {
-                "video" if attached => "Copertina incorporata".into(),
+                "video" if attached => "Embedded artwork".into(),
                 "video" => format!("{} × {}", stream.width.unwrap_or(0), stream.height.unwrap_or(0)),
-                "audio" => format!("{} {} · {} Hz", stream.channels.unwrap_or(0), if stream.channels == Some(1) { "canale" } else { "canali" }, stream.sample_rate.as_deref().unwrap_or("?")),
-                "subtitle" => if supported { "Sottotitoli testuali".into() } else { "Sottotitoli non testuali".into() },
-                _ => "Dati / allegato".into(),
+                "audio" => format!("{} {} · {} Hz", stream.channels.unwrap_or(0), if stream.channels == Some(1) { "channel" } else { "channels" }, stream.sample_rate.as_deref().unwrap_or("?")),
+                "subtitle" => if supported { "Text subtitles".into() } else { "Non-text subtitles".into() },
+                _ => "Data / attachment".into(),
             };
             let audio_mode = if stream.codec_type == "audio"
                 && !matches!(stream.codec_name.as_str(), "aac" | "ac3" | "eac3" | "alac" | "mp3") {
@@ -348,23 +344,23 @@ impl Document {
     }
 
     pub fn add_subtitle(&mut self, path: &Path, language: &str) -> Result<()> {
-        let code = language::normalize(language).context("Codice lingua non valido")?;
+        let code = language::normalize(language).context("Invalid language code")?;
         let path = local_file(path)?;
         ensure!(
             path.extension()
                 .is_some_and(|ext| ext.eq_ignore_ascii_case("srt")),
-            "Il prototipo importa sottotitoli esterni in formato SRT"
+            "External subtitle import supports SRT files"
         );
         ensure!(
             !self.tracks.iter().any(|track| track.source == path),
-            "Questo sottotitolo è già presente"
+            "This subtitle has already been added"
         );
         let subtitle = Self::open(&path)?;
         let mut track = subtitle
             .tracks
             .into_iter()
             .find(|track| track.kind == "subtitle" && track.unsupported.is_none())
-            .context("Il file non contiene sottotitoli testuali validi")?;
+            .context("The file does not contain valid text subtitles")?;
         track.language = code.into();
         track.title = path
             .file_stem()
@@ -410,7 +406,7 @@ pub enum ExportEvent {
 }
 
 fn write_itunes_metadata(path: &Path, doc: &Document) -> Result<()> {
-    let mut tag = Tag::read_from_path(path).context("Lettura degli atom MP4 non riuscita")?;
+    let mut tag = Tag::read_from_path(path).context("Unable to read MP4 atoms")?;
     let value = |key: &str| doc.metadata.get(key).filter(|value| !value.is_empty());
     if let Some(value) = value("title") {
         tag.set_title(value);
@@ -446,10 +442,10 @@ fn write_itunes_metadata(path: &Path, doc: &Document) -> Result<()> {
         tag.set_tv_network_name(value);
     }
     if let Some(value) = value("season_number") {
-        tag.set_tv_season(value.parse().context("Stagione non valida")?);
+        tag.set_tv_season(value.parse().context("Invalid season")?);
     }
     if let Some(value) = value("episode_sort") {
-        tag.set_tv_episode(value.parse().context("Episodio non valido")?);
+        tag.set_tv_episode(value.parse().context("Invalid episode")?);
     }
     for (key, name) in PRIVATE_METADATA_FIELDS
         .into_iter()
@@ -472,7 +468,7 @@ fn write_itunes_metadata(path: &Path, doc: &Document) -> Result<()> {
         }
     }
     tag.write_to_path(path)
-        .context("Scrittura dei metadati iTunes e della locandina non riuscita")
+        .context("Unable to write iTunes metadata and artwork")
 }
 
 /// Export to a temporary file on the destination filesystem, validate, then publish
@@ -483,16 +479,16 @@ pub fn export(
     cancel: &AtomicBool,
     mut notify: impl FnMut(ExportEvent),
 ) -> Result<()> {
-    ensure!(!cancel.load(Ordering::Relaxed), "Esportazione annullata");
+    ensure!(!cancel.load(Ordering::Relaxed), "Export cancelled");
     ensure!(
         destination
             .extension()
             .is_some_and(|ext| ext.eq_ignore_ascii_case("mp4")),
-        "Il file di destinazione deve avere estensione .mp4"
+        "The destination file must use the .mp4 extension"
     );
     ensure!(
         destination.symlink_metadata().is_err(),
-        "Il file di destinazione esiste già. Scegli un nuovo nome"
+        "The destination file already exists. Choose a new name"
     );
     let parent = destination
         .parent()
@@ -500,23 +496,24 @@ pub fn export(
         .unwrap_or(Path::new("."));
     let parent = parent
         .canonicalize()
-        .context("Cartella di destinazione non disponibile")?;
-    let destination = parent.join(destination.file_name().context("Nome del file mancante")?);
-    let selected: Vec<_> = doc.tracks.iter().filter(|track| track.enabled).collect();
-    ensure!(
-        !selected.is_empty(),
-        "Seleziona almeno una traccia da esportare"
+        .context("Destination directory is unavailable")?;
+    let destination = parent.join(
+        destination
+            .file_name()
+            .context("Destination file name is missing")?,
     );
+    let selected: Vec<_> = doc.tracks.iter().filter(|track| track.enabled).collect();
+    ensure!(!selected.is_empty(), "Select at least one track to export");
     let mut inputs = vec![local_file(&doc.path)?];
     for track in &selected {
         ensure!(
             track.unsupported.is_none(),
-            "Una traccia selezionata non è supportata: {}",
+            "A selected track is unsupported: {}",
             track.codec
         );
         ensure!(
             language::normalize(&track.language).is_some(),
-            "Lingua non valida per la traccia {}: {}",
+            "Invalid language for track {}: {}",
             track.index,
             track.language
         );
@@ -529,7 +526,7 @@ pub fn export(
         .prefix(".reelmux-")
         .suffix(".mp4")
         .tempfile_in(&parent)
-        .context("Impossibile creare un file temporaneo nella cartella scelta")?;
+        .context("Unable to create a temporary file in the selected directory")?;
     let mut command = Command::new("ffmpeg");
     command.args(["-hide_banner", "-nostdin", "-loglevel", "error", "-y"]);
     for path in &inputs {
@@ -542,7 +539,7 @@ pub fn export(
         let input_index = inputs
             .iter()
             .position(|path| *path == source)
-            .context("Sorgente della traccia non trovata")?;
+            .context("Track source was not found")?;
         command.args(["-map", &format!("{input_index}:{}", track.index)]);
     }
     command.args(["-map_metadata", "0", "-map_chapters", "0", "-c", "copy"]);
@@ -557,7 +554,7 @@ pub fn export(
                 "192k".into(),
             ]);
         }
-        let code = language::normalize(&track.language).context("Lingua non valida")?;
+        let code = language::normalize(&track.language).context("Invalid language")?;
         for value in [
             format!("language={code}"),
             format!("title={}", track.title),
@@ -612,7 +609,7 @@ pub fn export(
             if key == "season_number" || key == "episode_sort" {
                 ensure!(
                     value.is_empty() || value.parse::<u32>().is_ok(),
-                    "Stagione ed episodio devono essere numeri interi positivi"
+                    "Season and episode must be positive integers"
                 );
             }
             command.args(["-metadata", &format!("{key}={value}")]);
@@ -633,18 +630,18 @@ pub fn export(
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
-    notify(ExportEvent::Stage("Esportazione delle tracce…".into()));
+    notify(ExportEvent::Stage("Exporting tracks...".into()));
     let mut child = command
         .spawn()
-        .context("Impossibile avviare FFmpeg. Verifica che sia installato e nel PATH")?;
+        .context("Unable to start FFmpeg. Make sure it is installed and available in PATH")?;
     let stdout = child
         .stdout
         .take()
-        .context("FFmpeg: stdout non disponibile")?;
+        .context("FFmpeg: stdout is unavailable")?;
     let stderr = child
         .stderr
         .take()
-        .context("FFmpeg: stderr non disponibile")?;
+        .context("FFmpeg: stderr is unavailable")?;
     let (tx, rx) = mpsc::channel();
     let progress = thread::spawn(move || {
         for line in BufReader::new(stdout).lines().map_while(Result::ok) {
@@ -683,18 +680,16 @@ pub fn export(
     let _ = progress.join();
     let error_text = errors
         .join()
-        .unwrap_or_else(|_| "Lettura degli errori interrotta".into());
-    ensure!(!cancel.load(Ordering::Relaxed), "Esportazione annullata");
+        .unwrap_or_else(|_| "Error output reader stopped unexpectedly".into());
+    ensure!(!cancel.load(Ordering::Relaxed), "Export cancelled");
     ensure!(
         status.success(),
-        "FFmpeg non ha completato l'esportazione:\n{error_text}"
+        "FFmpeg did not complete the export:\n{error_text}"
     );
-    notify(ExportEvent::Stage(
-        "Scrittura dei metadati e della locandina…".into(),
-    ));
+    notify(ExportEvent::Stage("Writing metadata and artwork...".into()));
     write_itunes_metadata(temp.path(), doc)?;
-    notify(ExportEvent::Stage("Verifica del file esportato…".into()));
-    let output = probe(temp.path()).context("Verifica del file esportato fallita")?;
+    notify(ExportEvent::Stage("Verifying the exported file...".into()));
+    let output = probe(temp.path()).context("Exported file verification failed")?;
     for kind in ["video", "audio", "subtitle"] {
         let expected = selected.iter().filter(|track| track.kind == kind).count()
             + usize::from(kind == "video" && doc.artwork.is_some());
@@ -705,14 +700,14 @@ pub fn export(
             .count();
         ensure!(
             expected == actual,
-            "Verifica fallita: attese {expected} tracce {kind}, trovate {actual}"
+            "Verification failed: expected {expected} {kind} tracks, found {actual}"
         );
     }
-    ensure!(!cancel.load(Ordering::Relaxed), "Esportazione annullata");
+    ensure!(!cancel.load(Ordering::Relaxed), "Export cancelled");
     temp.as_file().sync_all()?;
     temp.persist_noclobber(&destination).map_err(|error| {
         anyhow::anyhow!(
-            "Impossibile pubblicare il file senza sovrascrivere la destinazione: {}",
+            "Unable to publish the file without overwriting the destination: {}",
             error.error
         )
     })?;

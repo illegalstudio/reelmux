@@ -43,14 +43,14 @@ impl Provider {
 
     pub fn attribution(self) -> &'static str {
         match self {
-            Self::AppleTv => "Metadati e immagini: Apple TV",
+            Self::AppleTv => "Metadata and artwork: Apple TV",
             Self::Tmdb => {
                 "This product uses the TMDB API but is not endorsed or certified by TMDB."
             }
             Self::Tvdb => {
                 "Metadata provided by TheTVDB. Please consider adding missing information or subscribing."
             }
-            Self::ITunes => "Metadati e immagini: iTunes Store",
+            Self::ITunes => "Metadata and artwork: iTunes Store",
         }
     }
 }
@@ -70,7 +70,7 @@ impl FromStr for Provider {
             "tmdb" | "themoviedb" => Ok(Self::Tmdb),
             "tvdb" | "thetvdb" => Ok(Self::Tvdb),
             "itunes" | "itunes-store" => Ok(Self::ITunes),
-            _ => bail!("Provider non valido: {value}"),
+            _ => bail!("Invalid provider: {value}"),
         }
     }
 }
@@ -85,8 +85,8 @@ pub enum MediaKind {
 impl MediaKind {
     pub fn label(self) -> &'static str {
         match self {
-            Self::Movie => "Film",
-            Self::TvShow => "Serie TV",
+            Self::Movie => "Movie",
+            Self::TvShow => "TV show",
         }
     }
 }
@@ -103,30 +103,27 @@ pub struct SearchQuery {
 }
 
 impl SearchQuery {
-    pub fn italian(provider: Provider, kind: MediaKind, term: impl Into<String>) -> Self {
+    pub fn english(provider: Provider, kind: MediaKind, term: impl Into<String>) -> Self {
         Self {
             provider,
             kind,
             term: term.into(),
-            language: "it-IT".into(),
-            country: "IT".into(),
+            language: "en-US".into(),
+            country: "US".into(),
             season: None,
             episode: None,
         }
     }
 
     fn validate(&self) -> Result<()> {
-        ensure!(
-            !self.term.trim().is_empty(),
-            "Inserisci un titolo da cercare"
-        );
+        ensure!(!self.term.trim().is_empty(), "Enter a title to search");
         ensure!(
             self.language.len() >= 2 && self.language.is_ascii(),
-            "Codice lingua non valido"
+            "Invalid language code"
         );
         ensure!(
             self.country.len() == 2 && self.country.is_ascii(),
-            "Il paese deve essere un codice ISO di due lettere"
+            "Country must be a two-letter ISO code"
         );
         Ok(())
     }
@@ -165,7 +162,7 @@ impl MetadataResult {
                 provider: self.provider,
                 url: url.clone(),
                 thumbnail_url: url.clone(),
-                label: "Locandina".into(),
+                label: "Poster".into(),
             })
             .into_iter()
             .collect()
@@ -255,7 +252,7 @@ impl Client {
     pub fn resolve(&self, hit: &SearchHit, query: &SearchQuery) -> Result<MetadataResult> {
         ensure!(
             hit.provider == query.provider && hit.kind == query.kind,
-            "Il risultato non appartiene alla ricerca corrente"
+            "The result does not belong to the current search"
         );
         match hit.provider {
             Provider::AppleTv => self.resolve_apple(hit, query),
@@ -281,13 +278,13 @@ impl Client {
     }
 
     fn download_artwork_url(&self, source_url: &str, provider: Provider) -> Result<Artwork> {
-        let url = Url::parse(source_url).context("URL della locandina non valido")?;
-        ensure!(url.scheme() == "https", "La locandina deve usare HTTPS");
+        let url = Url::parse(source_url).context("Invalid artwork URL")?;
+        ensure!(url.scheme() == "https", "Artwork must use HTTPS");
         let mut response = self
             .agent
             .get(url.as_str())
             .call()
-            .with_context(|| format!("Download della locandina da {provider} non riuscito"))?;
+            .with_context(|| format!("Unable to download artwork from {provider}"))?;
         let media_type = response
             .headers()
             .get("content-type")
@@ -299,20 +296,20 @@ impl Client {
             .to_ascii_lowercase();
         ensure!(
             matches!(media_type.as_str(), "image/jpeg" | "image/png"),
-            "Formato della locandina non supportato: {media_type}"
+            "Unsupported artwork format: {media_type}"
         );
         let bytes = response
             .body_mut()
             .with_config()
             .limit(15 * 1024 * 1024)
             .read_to_vec()
-            .context("Lettura della locandina non riuscita")?;
+            .context("Unable to read artwork")?;
         let valid = match media_type.as_str() {
             "image/jpeg" => bytes.starts_with(&[0xff, 0xd8, 0xff]),
             "image/png" => bytes.starts_with(b"\x89PNG\r\n\x1a\n"),
             _ => false,
         };
-        ensure!(valid, "Il server non ha restituito un’immagine valida");
+        ensure!(valid, "The server did not return a valid image");
         Ok(Artwork {
             bytes,
             media_type,
@@ -331,10 +328,10 @@ impl Client {
         }
         request
             .call()
-            .with_context(|| format!("Richiesta a {provider} non riuscita"))?
+            .with_context(|| format!("Request to {provider} failed"))?
             .body_mut()
             .read_json()
-            .with_context(|| format!("Risposta JSON di {provider} non valida"))
+            .with_context(|| format!("Invalid JSON response from {provider}"))
     }
 
     fn get_json_optional(&self, url: Url, bearer: Option<&str>) -> Option<Value> {
@@ -350,8 +347,9 @@ impl Client {
 
     fn apple_url(&self, path: &str, query: &SearchQuery) -> Result<Url> {
         let mut url = Url::parse(&self.apple_base)?.join(path)?;
-        let storefront = apple_storefront(&query.country)
-            .context("Paese non supportato da Apple TV. Usa IT, US, GB, DE, FR, ES, CA, AU o JP")?;
+        let storefront = apple_storefront(&query.country).context(
+            "Country is not supported by Apple TV. Use IT, US, GB, DE, FR, ES, CA, AU, or JP",
+        )?;
         url.query_pairs_mut()
             .append_pair("sf", storefront)
             .append_pair("locale", &query.language);
@@ -451,7 +449,7 @@ impl Client {
                 provider: Provider::AppleTv,
                 url: url.clone(),
                 thumbnail_url: url,
-                label: "Locandina".into(),
+                label: "Poster".into(),
             });
         }
         unique_artworks(&mut artworks);
@@ -500,7 +498,7 @@ impl Client {
             url.query_pairs_mut().append_pair("api_key", key);
             Ok((url, None))
         } else {
-            bail!("TheMovieDB richiede TMDB_API_TOKEN oppure TMDB_API_KEY")
+            bail!("TheMovieDB requires TMDB_API_TOKEN or TMDB_API_KEY")
         }
     }
 
@@ -643,7 +641,7 @@ impl Client {
                         thumbnail_url: tmdb_image(item.get("still_path"), "w300")
                             .unwrap_or_else(|| url.clone()),
                         url,
-                        label: "Fotogramma episodio".into(),
+                        label: "Episode still".into(),
                     });
                 }
                 if !episode_artworks.is_empty() {
@@ -669,7 +667,7 @@ impl Client {
             .credentials
             .tvdb_api_key
             .as_deref()
-            .context("TheTVDB richiede TVDB_API_KEY")?;
+            .context("TheTVDB requires TVDB_API_KEY")?;
         let url = Url::parse(&self.tvdb_base)?.join("login")?;
         let mut body = json!({ "apikey": key });
         if let Some(pin) = self.credentials.tvdb_pin.as_deref() {
@@ -680,15 +678,15 @@ impl Client {
             .post(url.as_str())
             .header("Accept", "application/json")
             .send_json(&body)
-            .context("Accesso a TheTVDB non riuscito")?
+            .context("Unable to sign in to TheTVDB")?
             .body_mut()
             .read_json()
-            .context("Risposta di accesso TheTVDB non valida")?;
+            .context("Invalid TheTVDB sign-in response")?;
         value
             .pointer("/data/token")
             .and_then(Value::as_str)
             .map(str::to_owned)
-            .context("TheTVDB non ha restituito un token")
+            .context("TheTVDB did not return a token")
     }
 
     fn search_tvdb(&self, query: &SearchQuery) -> Result<Vec<SearchHit>> {
@@ -775,7 +773,7 @@ impl Client {
                 provider: Provider::Tvdb,
                 thumbnail_url: url.clone(),
                 url,
-                label: "Locandina".into(),
+                label: "Poster".into(),
             });
         }
         if hit.kind == MediaKind::TvShow {
@@ -790,7 +788,7 @@ impl Client {
                 let episode_list = self.get_json(episodes_url, Some(&token), Provider::Tvdb)?;
                 let item = episode_list
                     .pointer("/data/episodes/0")
-                    .context("Episodio non trovato su TheTVDB")?;
+                    .context("Episode not found on TheTVDB")?;
                 let episode_translation = integer(item, "id")
                     .and_then(|id| {
                         let language = tvdb_language(&query.language)?;
@@ -822,7 +820,7 @@ impl Client {
                             provider: Provider::Tvdb,
                             thumbnail_url: url.clone(),
                             url,
-                            label: "Fotogramma episodio".into(),
+                            label: "Episode still".into(),
                         },
                     );
                 }
@@ -912,7 +910,7 @@ impl Client {
         let item = value["results"]
             .as_array()
             .and_then(|items| items.first())
-            .context("Risultato non più disponibile su iTunes Store")?;
+            .context("Result is no longer available on iTunes Store")?;
         let title = string(item, "trackName");
         let description =
             string(item, "longDescription").or_if_empty(string(item, "shortDescription"));
@@ -958,7 +956,7 @@ impl Client {
                 label: if hit.kind == MediaKind::Movie {
                     "Poster".into()
                 } else {
-                    "Copertina stagione".into()
+                    "Season artwork".into()
                 },
             })
             .into_iter()
@@ -1125,7 +1123,7 @@ fn tmdb_artworks(value: &Value) -> Vec<ArtworkCandidate> {
     for (collection, label, thumbnail_size) in [
         ("posters", "Poster", "w342"),
         ("backdrops", "Sfondo", "w300"),
-        ("stills", "Fotogramma episodio", "w300"),
+        ("stills", "Episode still", "w300"),
     ] {
         for image in value
             .pointer(&format!("/images/{collection}"))
@@ -1157,7 +1155,7 @@ fn tvdb_artworks(value: &Value) -> Vec<ArtworkCandidate> {
             provider: Provider::Tvdb,
             thumbnail_url: absolute_image(value.get("thumbnail")).unwrap_or_else(|| url.clone()),
             url,
-            label: "Locandina principale".into(),
+            label: "Primary poster".into(),
         });
     }
     for image in value
@@ -1176,7 +1174,7 @@ fn tvdb_artworks(value: &Value) -> Vec<ArtworkCandidate> {
         } else if lower.contains("background") || lower.contains("fanart") {
             "Sfondo"
         } else if lower.contains("season") {
-            "Copertina stagione"
+            "Season artwork"
         } else {
             "Artwork"
         };
@@ -1316,7 +1314,7 @@ fn itunes_artwork(url: &str, size: u32) -> Option<String> {
 
 fn itunes_season(value: &Value) -> Option<u32> {
     let name = string(value, "collectionName").to_ascii_lowercase();
-    ["season ", "stagione ", "saison ", "staffel "]
+    ["season ", "saison ", "staffel "]
         .into_iter()
         .find_map(|marker| {
             name.rsplit_once(marker)
@@ -1362,7 +1360,7 @@ mod tests {
             tmdb_image(Some(&json!("/poster.jpg")), "original").unwrap(),
             "https://image.tmdb.org/t/p/original/poster.jpg"
         );
-        assert_eq!(tvdb_language("it-IT"), Some("ita"));
+        assert_eq!(tvdb_language("en-US"), Some("eng"));
         assert_eq!(tvdb_language("en_US"), Some("eng"));
     }
 
@@ -1410,12 +1408,12 @@ mod tests {
         });
         let tvdb_choices = tvdb_artworks(&tvdb);
         assert_eq!(tvdb_choices.len(), 3);
-        assert_eq!(tvdb_choices[0].label, "Locandina principale");
+        assert_eq!(tvdb_choices[0].label, "Primary poster");
     }
 
     #[test]
     fn query_validation_rejects_invalid_input() {
-        let mut query = SearchQuery::italian(Provider::AppleTv, MediaKind::Movie, "");
+        let mut query = SearchQuery::english(Provider::AppleTv, MediaKind::Movie, "");
         assert!(query.validate().is_err());
         query.term = "Dune".into();
         query.country = "Italia".into();

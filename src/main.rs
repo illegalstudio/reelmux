@@ -9,19 +9,19 @@ use reelmux::metadata::{Client as MetadataClient, MediaKind, Provider, SearchQue
 mod ui;
 
 #[derive(Parser)]
-#[command(version, about = "ReelMux, editor MP4 per Linux")]
+#[command(version, about = "ReelMux, an MP4 editor for Linux")]
 struct Args {
     #[command(subcommand)]
     command: Option<Commands>,
-    /// Apri un file nell'interfaccia grafica.
+    /// Open a file in the graphical interface.
     file: Option<PathBuf>,
 }
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Mostra tracce, capitoli e metadati in JSON.
+    /// Show tracks, chapters, and metadata as JSON.
     Inspect { input: PathBuf },
-    /// Esporta un nuovo MP4 senza sovrascrivere file esistenti.
+    /// Export a new MP4 without overwriting existing files.
     Export {
         input: PathBuf,
         output: PathBuf,
@@ -36,25 +36,25 @@ enum Commands {
         #[arg(long)]
         aac: bool,
     },
-    /// Cerca metadati e locandine nei provider online supportati.
+    /// Search supported online providers for metadata and artwork.
     Metadata {
         query: String,
         #[arg(long, default_value = "apple-tv")]
         provider: Provider,
         #[arg(long)]
         tv: bool,
-        #[arg(long, default_value = "it-IT")]
+        #[arg(long, default_value = "en-US")]
         language: String,
-        #[arg(long, default_value = "IT")]
+        #[arg(long, default_value = "US")]
         country: String,
         #[arg(long)]
         season: Option<u32>,
         #[arg(long)]
         episode: Option<u32>,
-        /// Risolvi il risultato indicato, partendo da 1.
+        /// Resolve the selected result, starting from 1.
         #[arg(long)]
         select: Option<usize>,
-        /// Salva la locandina del risultato selezionato senza sovrascrivere.
+        /// Save the selected result artwork without overwriting an existing file.
         #[arg(long, requires = "select")]
         artwork: Option<PathBuf>,
     },
@@ -84,7 +84,7 @@ fn run() -> Result<()> {
                     .tracks
                     .iter_mut()
                     .find(|track| track.index == index)
-                    .ok_or_else(|| anyhow::anyhow!("Traccia {index} inesistente"))?;
+                    .ok_or_else(|| anyhow::anyhow!("Track {index} does not exist"))?;
                 track.enabled = false;
             }
             if let Some(title) = title {
@@ -106,7 +106,7 @@ fn run() -> Result<()> {
                     eprintln!("{stage}");
                 }
             })?;
-            println!("Salvato: {}", output.display());
+            println!("Saved: {}", output.display());
         }
         Some(Commands::Metadata {
             query,
@@ -138,7 +138,7 @@ fn run() -> Result<()> {
                 let hit = selected
                     .checked_sub(1)
                     .and_then(|index| hits.get(index))
-                    .ok_or_else(|| anyhow::anyhow!("Risultato {selected} inesistente"))?;
+                    .ok_or_else(|| anyhow::anyhow!("Result {selected} does not exist"))?;
                 let result = client.resolve(hit, &query)?;
                 if let Some(path) = artwork
                     && let Some(image) = client.download_artwork(&result)?
@@ -148,7 +148,7 @@ fn run() -> Result<()> {
                         .create_new(true)
                         .open(&path)?;
                     file.write_all(&image.bytes)?;
-                    eprintln!("Locandina salvata: {}", path.display());
+                    eprintln!("Artwork saved: {}", path.display());
                 }
                 println!("{}", serde_json::to_string_pretty(&result)?);
             } else {
@@ -160,7 +160,7 @@ fn run() -> Result<()> {
             return ui::run(args.file);
             #[cfg(not(feature = "gui"))]
             anyhow::bail!(
-                "GUI non inclusa. Ricompila con le funzionalità predefinite o usa inspect/export."
+                "GUI support is not included. Rebuild with default features or use inspect/export."
             );
         }
     }
@@ -171,7 +171,7 @@ fn main() -> ExitCode {
     match run() {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
-            eprintln!("Errore: {error:#}");
+            eprintln!("Error: {error:#}");
             ExitCode::FAILURE
         }
     }
