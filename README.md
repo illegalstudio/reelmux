@@ -116,10 +116,12 @@ cargo build --locked --no-default-features
 ## Verifiche
 
 ```sh
-cargo fmt --check
-cargo clippy --locked --all-targets -- -D warnings
-cargo test --locked
+make check
 ```
+
+Il comando esegue formattazione, Clippy e tutti i test automatici. `make build`
+crea il binario ottimizzato, mentre `make dist` prepara un archivio Linux e, se
+`dpkg-deb` è installato, anche un pacchetto Debian.
 
 I test d'integrazione richiedono FFmpeg. Generano file locali temporanei e verificano
 metadati, capitoli, lingue, sottotitoli forzati, esclusione delle tracce, conversione
@@ -137,6 +139,25 @@ Questo test apre una finestra con un video sintetico, modifica titolo, lingua,
 inclusione e flag dei sottotitoli, quindi esporta e controlla il risultato.
 Richiede anche Python 3. Impostando `REELMUX_TEST_SCREENSHOT` a un percorso PNG
 si può acquisire la sola finestra del test, senza catturare il resto del desktop.
+
+## Release
+
+Le release partono da un tag semantico `vMAJOR.MINOR.PATCH` raggiungibile da
+`main`. Il comando interattivo propone la patch successiva, oppure `v0.1.0`
+quando non esistono ancora tag:
+
+```sh
+make release
+```
+
+La working tree deve essere pulita e `main` deve coincidere con `origin/main`.
+Il comando accetta la versione proposta o una versione diversa, aggiorna
+`Cargo.toml` e `Cargo.lock`, esegue `make check`, crea il commit di versione e un
+tag annotato, quindi pubblica branch e tag con un unico push atomico.
+
+Il workflow GitHub Actions verifica nuovamente tag, branch e versione, compila
+su Ubuntu 24.04 per Linux amd64 e pubblica nella GitHub Release l'archivio
+`.tar.gz`, il pacchetto `.deb` e i checksum SHA-256.
 
 ## Limiti del prototipo
 

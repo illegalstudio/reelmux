@@ -1,0 +1,137 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Check and build Linux amd64
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag and main
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$TAG_NAME" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Tag $TAG_NAME must use vMAJOR.MINOR.PATCH"
+            exit 1
+          fi
+
+          tag_commit="$(git rev-list -n 1 "$GITHUB_REF")"
+          git fetch origin main:refs/remotes/origin/main
+          if ! git merge-base --is-ancestor "$tag_commit" origin/main; then
+            echo "::error::Tag $TAG_NAME is not reachable from main"
+            exit 1
+          fi
+
+          echo "VERSION=${TAG_NAME#v}" >> "$GITHUB_ENV"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            desktop-file-utils \
+            ffmpeg \
+            libgtk-4-dev \
+            pkg-config
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Verify manifest version
+        run: |
+          set -euo pipefail
+          manifest_version="$(cargo metadata --locked --no-deps --format-version 1 \
+            | python3 -c 'import json, sys; print(json.load(sys.stdin)["packages"][0]["version"])')"
+          if [[ "$manifest_version" != "$VERSION" ]]; then
+            echo "::error::Tag version $VERSION does not match Cargo.toml version $manifest_version"
+            exit 1
+          fi
+
+      - name: Check
+        run: make check
+
+      - name: Build packages
+        run: make dist VERSION="$VERSION" ARCH=amd64
+
+      - name: Verify packages
+        run: |
+          set -euo pipefail
+          expected="reelmux $VERSION"
+          actual="$(target/release/reelmux --version)"
+          if [[ "$actual" != "$expected" ]]; then
+            echo "::error::Expected '$expected', got '$actual'"
+            exit 1
+          fi
+
+          desktop-file-validate data/io.github.nahime0.ReelMux.desktop
+          tar -tzf "dist/reelmux_${VERSION}_linux_amd64.tar.gz" >/dev/null
+          dpkg-deb --info "dist/reelmux_${VERSION}_linux_amd64.deb" >/dev/null
+          dpkg-deb --contents "dist/reelmux_${VERSION}_linux_amd64.deb" >/dev/null
+
+      - name: Checksums
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum reelmux_* > "reelmux_${VERSION}_checksums.txt"
+          cat "reelmux_${VERSION}_checksums.txt"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: reelmux-${{ github.ref_name }}-linux-amd64
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: reelmux-${{ github.ref_name }}-linux-amd64
+          path: dist
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/* \
+              --repo "$GITHUB_REPOSITORY" \
+              --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/* \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "ReelMux $GITHUB_REF_NAME" \
+              --verify-tag \
+              --generate-notes \
+              --fail-on-no-commits
+          fi
