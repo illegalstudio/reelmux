@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.nahime0.ReelMux</id>
+  <name>ReelMux</name>
+  <summary>Edit MP4 tracks, subtitles, metadata and artwork</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-2.0-only</project_license>
+  <description>
+    <p>
+      ReelMux is an MP4 editor for Linux. It can remux video and audio tracks,
+      convert text subtitles, edit metadata and import artwork from online
+      providers.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.nahime0.ReelMux.desktop</launchable>
+  <provides>
+    <binary>reelmux</binary>
+  </provides>
+  <url type="homepage">https://github.com/nahime0/reelmux</url>
+  <developer id="io.github.nahime0">
+    <name>ReelMux contributors</name>
+  </developer>
+  <content_rating type="oars-1.1" />
+</component>

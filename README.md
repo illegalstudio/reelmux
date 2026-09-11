@@ -120,8 +120,8 @@ make check
 ```
 
 Il comando esegue formattazione, Clippy e tutti i test automatici. `make build`
-crea il binario ottimizzato, mentre `make dist` prepara un archivio Linux e, se
-`dpkg-deb` è installato, anche un pacchetto Debian.
+crea il binario ottimizzato. Con nFPM installato, `make dist` prepara un archivio
+Linux e i pacchetti Debian, RPM e Arch Linux.
 
 I test d'integrazione richiedono FFmpeg. Generano file locali temporanei e verificano
 metadati, capitoli, lingue, sottotitoli forzati, esclusione delle tracce, conversione
