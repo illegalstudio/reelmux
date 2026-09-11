@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/nahime0/reelmux/stargazers"><img src="https://img.shields.io/github/stars/nahime0/reelmux?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=stars&amp;color=7759CE" alt="Stars"></a>
-  <a href="https://github.com/nahime0/reelmux/releases"><img src="https://img.shields.io/github/v/release/nahime0/reelmux?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=release&amp;color=7759CE" alt="Latest release"></a>
-  <a href="https://github.com/nahime0/reelmux/releases"><img src="https://img.shields.io/github/downloads/nahime0/reelmux/total?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=downloads&amp;color=7759CE" alt="Downloads"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/nahime0/reelmux?style=flat-square&amp;color=7759CE" alt="MIT License"></a>
+  <a href="https://github.com/illegalstudio/reelmux/stargazers"><img src="https://img.shields.io/github/stars/illegalstudio/reelmux?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=stars&amp;color=7759CE" alt="Stars"></a>
+  <a href="https://github.com/illegalstudio/reelmux/releases"><img src="https://img.shields.io/github/v/release/illegalstudio/reelmux?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=release&amp;color=7759CE" alt="Latest release"></a>
+  <a href="https://github.com/illegalstudio/reelmux/releases"><img src="https://img.shields.io/github/downloads/illegalstudio/reelmux/total?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=downloads&amp;color=7759CE" alt="Downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/illegalstudio/reelmux?style=flat-square&amp;color=7759CE" alt="MIT License"></a>
 </p>
 
 <p align="center">
@@ -52,7 +52,7 @@ never overwritten.
 ## Installation
 
 Download the AppImage or the package for your distribution from
-[GitHub Releases](https://github.com/nahime0/reelmux/releases). Native packages
+[GitHub Releases](https://github.com/illegalstudio/reelmux/releases). Native packages
 are available for Debian, RPM, and Arch Linux based distributions on amd64 and
 arm64. FFmpeg and FFprobe must be installed and available in `PATH`.
 
