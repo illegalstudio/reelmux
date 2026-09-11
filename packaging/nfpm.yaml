@@ -8,7 +8,7 @@ priority: optional
 maintainer: ReelMux contributors <nahime0@users.noreply.github.com>
 description: Edit MP4 tracks, subtitles, metadata and artwork on Linux
 vendor: ReelMux
-homepage: https://github.com/nahime0/reelmux
+homepage: https://opensource.nahi.me
 license: GPL-2.0-only
 
 contents:

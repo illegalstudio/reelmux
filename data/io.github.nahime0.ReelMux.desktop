@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=ReelMux
-Comment=Edit MP4 tracks, subtitles and metadata
+Comment=Edit MP4 tracks, subtitles, metadata and artwork
 Exec=reelmux %f
 Icon=io.github.nahime0.ReelMux
 Terminal=false

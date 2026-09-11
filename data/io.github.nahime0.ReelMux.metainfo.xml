@@ -16,7 +16,9 @@
   <provides>
     <binary>reelmux</binary>
   </provides>
-  <url type="homepage">https://github.com/nahime0/reelmux</url>
+  <url type="homepage">https://opensource.nahi.me</url>
+  <url type="bugtracker">https://github.com/nahime0/reelmux/issues</url>
+  <url type="vcs-browser">https://github.com/nahime0/reelmux</url>
   <developer id="io.github.nahime0">
     <name>ReelMux contributors</name>
   </developer>

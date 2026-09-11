@@ -1,7 +1,34 @@
-# ReelMux
+<p align="center">
+  <img src="data/io.github.nahime0.ReelMux.svg" alt="Logo di ReelMux" width="130">
+</p>
 
-ReelMux è un editor MP4 per Linux scritto in Rust e GTK4, ispirato a
-[Subler](https://subler.org/). Il prototipo offre un'interfaccia in italiano.
+<h1 align="center">ReelMux</h1>
+
+<p align="center">
+  <em>MP4 fatti bene, su Linux.</em>
+</p>
+
+<p align="center">
+  <a href="https://github.com/nahime0/reelmux/stargazers"><img src="https://img.shields.io/github/stars/nahime0/reelmux?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=stars&amp;color=7759CE" alt="Stars"></a>
+  <a href="https://github.com/nahime0/reelmux/releases"><img src="https://img.shields.io/github/v/release/nahime0/reelmux?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=release&amp;color=7759CE" alt="Ultima release"></a>
+  <a href="https://github.com/nahime0/reelmux/releases"><img src="https://img.shields.io/github/downloads/nahime0/reelmux/total?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=downloads&amp;color=7759CE" alt="Download"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/nahime0/reelmux?style=flat-square&amp;color=7759CE" alt="Licenza GPL-2.0-only"></a>
+</p>
+
+<p align="center">
+  <strong>Rust &middot; GTK4 &middot; FFmpeg &middot; MP4 e MKV</strong>
+</p>
+
+<p align="center">
+  ReelMux è un editor desktop nativo per Linux che gestisce tracce, metadati,
+  sottotitoli e locandine MP4, ispirato a <a href="https://subler.org/">Subler</a>.
+</p>
+
+<p align="center">
+  <a href="https://opensource.nahi.me"><strong>opensource.nahi.me</strong></a>
+</p>
+
+---
 
 ## Funzioni disponibili
 

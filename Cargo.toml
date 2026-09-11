@@ -3,8 +3,12 @@ name = "reelmux"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.92"
-description = "An MP4 track and metadata editor for Linux"
+description = "A native MP4 track, metadata, subtitle and artwork editor for Linux"
 license = "GPL-2.0-only"
+homepage = "https://opensource.nahi.me"
+repository = "https://github.com/nahime0/reelmux"
+keywords = ["mp4", "metadata", "subtitles", "linux", "gtk"]
+categories = ["multimedia::video"]
 default-run = "reelmux"
 
 [features]
