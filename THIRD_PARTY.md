@@ -1,64 +1,56 @@
-# Provenienza e licenze
+# Attribution and third-party notices
 
-ReelMux è un progetto indipendente ispirato a Subler. Non è una versione
-ufficiale di SublerApp. Il codice di questo prototipo è distribuito sotto GPL-2.0-only.
+ReelMux is an independent project inspired by Subler. It is not an official
+SublerApp project. ReelMux source code is released under the MIT License.
 
-## Materiale recuperato da Subler
+## Subler references
 
-- `data/languages.json` è un adattamento della tabella `languages[]` in
-  `MP42/MP42Languages.m`, file creato da Damiano Galassi in MP42Foundation.
-  Sono stati conservati nome inglese e codici ISO 639-1, 639-2/T e 639-2/B.
-  Sono stati omessi i nomi nativi e gli identificativi QuickTime; la punteggiatura
-  dei nomi è stata normalizzata dove necessario.
-- Sorgente: <https://github.com/SublerApp/MP42Foundation/blob/740fd075b333a03df4ff3d3a141f0c4f4f62b273/MP42/MP42Languages.m>.
-- Il file `LICENSE` riproduce `COPYING` di Subler al commit
-  `b0d8ee73a89477a3b50b13e59f1ec2f19f1a35ae`.
-- La dichiarazione di licenza di Subler è disponibile in
-  <https://github.com/SublerApp/Subler/blob/b0d8ee73a89477a3b50b13e59f1ec2f19f1a35ae/LICENSE>.
+The functional separation between documents, tracks, and metadata import was
+informed by Subler. The following Subler and MP42Foundation sources were
+consulted while designing ReelMux:
 
-La normalizzazione delle lingue usa la tabella recuperata. La separazione tra
-documento, tracce e importazione prende come riferimento funzionale Subler.
-Le implementazioni Rust delle operazioni sui file e dell'interfaccia sono nuove.
-Le mappature di `Classes/MetadataImporters/MetadataResultMap.swift` e il modello
-di `MP42Metadata.m` sono stati consultati per individuare i campi di film e serie.
-I file `AppleTV.swift`, `TheMovieDB.swift`, `TheTVDB.swift` e `iTunesStore.swift`
-sono stati consultati per identificare i provider, le risorse usate e la
-corrispondenza dei campi. I client Rust sono implementazioni nuove. Non sono
-state copiate le credenziali presenti nel sorgente originale, né icone o binari
-macOS.
+- The language table in `MP42/MP42Languages.m` for expected ISO 639 normalization behavior.
+- `Classes/MetadataImporters/MetadataResultMap.swift` and `MP42Metadata.m` for movie and TV metadata fields.
+- `AppleTV.swift`, `TheMovieDB.swift`, `TheTVDB.swift`, and `iTunesStore.swift` for provider capabilities and field mappings.
 
-I provider hanno termini e requisiti di attribuzione propri:
+References:
+
+- <https://github.com/SublerApp/MP42Foundation/blob/740fd075b333a03df4ff3d3a141f0c4f4f62b273/MP42/MP42Languages.m>
+- <https://github.com/SublerApp/Subler/tree/b0d8ee73a89477a3b50b13e59f1ec2f19f1a35ae/Classes/MetadataImporters>
+- <https://github.com/SublerApp/Subler/blob/b0d8ee73a89477a3b50b13e59f1ec2f19f1a35ae/LICENSE>
+
+The language data in `data/languages.json` contains factual English names and
+ISO 639 identifiers assembled for ReelMux. The Rust file operations, provider
+clients, user interface, icon, and stylesheet are original ReelMux work. ReelMux
+does not include credentials, icons, binaries, or source code copied from Subler.
+
+Each metadata provider has its own terms and attribution requirements:
 
 - Apple Search API: <https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/>
 - TheMovieDB API: <https://developer.themoviedb.org/docs/getting-started>
-- TheTVDB API e licenze: <https://thetvdb.com/api-information>
-- Sorgente degli importer Subler consultati:
-  <https://github.com/SublerApp/Subler/tree/b0d8ee73a89477a3b50b13e59f1ec2f19f1a35ae/Classes/MetadataImporters>
+- TheTVDB API and licensing: <https://thetvdb.com/api-information>
 
-`data/tmdb-logo.svg` è il logo corto blu ufficiale scaricato dalla pagina
-[Logos & Attribution](https://www.themoviedb.org/about/logos-attribution). Il
-marchio appartiene a TMDB e viene usato unicamente per l'attribuzione richiesta.
+`data/tmdb-logo.svg` is the official short blue TMDB logo downloaded from the
+[Logos and Attribution](https://www.themoviedb.org/about/logos-attribution)
+page. The TMDB trademark belongs to TMDB and is used only for the required
+attribution.
 
-ReelMux richiede chiavi personali per TheMovieDB e TheTVDB. Non distribuisce
-credenziali di terzi. Le immagini e i dati scaricati restano soggetti ai termini
-del provider selezionato.
+ReelMux requires personal credentials for TheMovieDB and TheTVDB and does not
+distribute third-party credentials. Images and metadata remain subject to the
+terms of the selected provider.
 
-## Dipendenze
+## Dependencies
 
-Le dipendenze Rust, inclusi `ureq`, `url` e `mp4ameta`, sono fissate in
-`Cargo.lock` e conservano le rispettive licenze.
-GTK4 viene collegato alle librerie di sistema nei pacchetti nativi. Le AppImage
-includono GTK4 e le dipendenze dinamiche raccolte da linuxdeploy, soggette alle
-rispettive licenze. FFmpeg e ffprobe vengono eseguiti come programmi esterni e
-non sono inclusi nei pacchetti. Le opzioni di build e le licenze dei pacchetti
-FFmpeg dipendono dalla distribuzione.
+Rust dependencies, including `ureq`, `url`, and `mp4ameta`, are pinned in
+`Cargo.lock` and retain their respective licenses.
 
-Le AppImage vengono create con linuxdeploy e linuxdeploy-plugin-gtk, scaricati
-durante la build da versioni fissate e verificati tramite SHA-256:
+Native packages link GTK4 from the system. AppImages include GTK4 and dynamic
+libraries collected by linuxdeploy, all subject to their respective licenses.
+FFmpeg and FFprobe run as external programs and are not included in ReelMux
+packages. Their build options and licenses depend on the Linux distribution.
+
+AppImages are built with pinned, checksum-verified versions of these tools:
 
 - linuxdeploy: <https://github.com/linuxdeploy/linuxdeploy>
 - linuxdeploy-plugin-gtk: <https://github.com/linuxdeploy/linuxdeploy-plugin-gtk>
 - AppImage type 2 runtime: <https://github.com/AppImage/type2-runtime>
-
-L'icona SVG e il foglio di stile di ReelMux sono nuovi e coperti dalla licenza
-del progetto.

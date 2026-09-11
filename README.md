@@ -1,27 +1,27 @@
 <p align="center">
-  <img src="data/io.github.nahime0.ReelMux.svg" alt="Logo di ReelMux" width="130">
+  <img src="data/io.github.nahime0.ReelMux.svg" alt="ReelMux logo" width="130">
 </p>
 
 <h1 align="center">ReelMux</h1>
 
 <p align="center">
-  <em>MP4 fatti bene, su Linux.</em>
+  <em>MP4 done right on Linux.</em>
 </p>
 
 <p align="center">
   <a href="https://github.com/nahime0/reelmux/stargazers"><img src="https://img.shields.io/github/stars/nahime0/reelmux?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=stars&amp;color=7759CE" alt="Stars"></a>
-  <a href="https://github.com/nahime0/reelmux/releases"><img src="https://img.shields.io/github/v/release/nahime0/reelmux?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=release&amp;color=7759CE" alt="Ultima release"></a>
-  <a href="https://github.com/nahime0/reelmux/releases"><img src="https://img.shields.io/github/downloads/nahime0/reelmux/total?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=downloads&amp;color=7759CE" alt="Download"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/nahime0/reelmux?style=flat-square&amp;color=7759CE" alt="Licenza GPL-2.0-only"></a>
+  <a href="https://github.com/nahime0/reelmux/releases"><img src="https://img.shields.io/github/v/release/nahime0/reelmux?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=release&amp;color=7759CE" alt="Latest release"></a>
+  <a href="https://github.com/nahime0/reelmux/releases"><img src="https://img.shields.io/github/downloads/nahime0/reelmux/total?style=flat-square&amp;logo=github&amp;logoColor=white&amp;label=downloads&amp;color=7759CE" alt="Downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/nahime0/reelmux?style=flat-square&amp;color=7759CE" alt="MIT License"></a>
 </p>
 
 <p align="center">
-  <strong>Rust &middot; GTK4 &middot; FFmpeg &middot; MP4 e MKV</strong>
+  <strong>Rust &middot; GTK4 &middot; FFmpeg &middot; MP4 and MKV</strong>
 </p>
 
 <p align="center">
-  ReelMux è un editor desktop nativo per Linux che gestisce tracce, metadati,
-  sottotitoli e locandine MP4, ispirato a <a href="https://subler.org/">Subler</a>.
+  ReelMux is a native Linux desktop application for managing MP4 tracks,
+  metadata, subtitles, and artwork, inspired by <a href="https://subler.org/">Subler</a>.
 </p>
 
 <p align="center">
@@ -30,197 +30,103 @@
 
 ---
 
-## Funzioni disponibili
+## Features
 
-- Apertura di MP4, M4V, MOV e MKV, anche trascinando un file nella finestra.
-- Elenco delle tracce con codec, risoluzione o canali, nome e lingua modificabili.
-- Inclusione ed esclusione delle tracce; flag predefinito e sottotitoli forzati.
-- Aggiunta di SRT esterni e conversione dei sottotitoli testuali in `mov_text`.
-- Copia del video e scelta tra copia audio e conversione AAC a 192 kbit/s.
-- Modifica di titolo, data, genere, descrizione, serie, stagione ed episodio.
-- Ricerca di film e serie su Apple TV, TheMovieDB, TheTVDB e iTunes Store.
-- Importazione di descrizione, cast, troupe, studio, classificazione e altri campi disponibili.
-- Selezione tra più locandine, anteprima e incorporamento nell'atom MP4 `covr`.
-- Sostituzione della sola locandina, senza cambiare i metadati già presenti.
-- Trasferimento dei capitoli originali.
-- Esportazione in background, avanzamento, annullamento e verifica delle tracce.
-- Interfaccia a riga di comando per ispezione ed esportazione.
+- Open MP4, M4V, MOV, and MKV files, including by drag and drop.
+- Inspect tracks with codec, resolution, channel count, name, and language details.
+- Include or exclude tracks and set default or forced flags.
+- Add external SRT files and convert text subtitles to MP4 text.
+- Copy video and audio streams, or convert audio to AAC at 192 kbit/s.
+- Edit titles, release dates, genres, descriptions, TV show details, seasons, and episodes.
+- Search Apple TV, TheMovieDB, TheTVDB, and iTunes Store for movies and TV shows.
+- Import descriptions, cast, crew, studio, ratings, and other available metadata.
+- Preview and choose from multiple artwork options, then embed the selected image in the MP4 `covr` atom.
+- Replace artwork without changing existing metadata.
+- Preserve source chapters.
+- Export in the background with progress, cancellation, and output verification.
 
-L'esportazione produce un nuovo file. Una destinazione esistente viene rifiutata.
-Il risultato viene scritto su un file temporaneo nella cartella di destinazione,
-verificato e pubblicato senza sovrascrivere altri file. Se FFmpeg fallisce o
-l'operazione viene annullata, il temporaneo viene rimosso.
+ReelMux always creates a new output file. It writes to a temporary file, verifies
+the result, and publishes it only when the export succeeds. Existing files are
+never overwritten.
 
-## Requisiti e avvio
+## Installation
 
-- Rust 1.92 o successivo e Cargo.
-- GTK4 4.10 o successivo, con header di sviluppo e `pkg-config`.
-- `ffmpeg` e `ffprobe` nel `PATH`.
+Download the AppImage or the package for your distribution from
+[GitHub Releases](https://github.com/nahime0/reelmux/releases). Native packages
+are available for Debian, RPM, and Arch Linux based distributions on amd64 and
+arm64. FFmpeg and FFprobe must be installed and available in `PATH`.
 
-Su Arch Linux:
+ReelMux requires GTK 4.10 or newer. The AppImage includes GTK, but still uses the
+FFmpeg installation provided by the system.
 
-```sh
-sudo pacman -S --needed rust gtk4 pkgconf ffmpeg
-```
+## Using ReelMux
 
-Su Ubuntu 24.04 o successivo:
+Open ReelMux and choose a media file, or pass its path when starting the app:
 
 ```sh
-sudo apt install build-essential pkg-config libgtk-4-dev ffmpeg
+reelmux /path/to/video.mkv
 ```
 
-Su Ubuntu serve inoltre una toolchain Rust recente, ad esempio tramite rustup.
+Useful shortcuts:
+
+- `Ctrl+O`: open a media file.
+- `Ctrl+I`: add an SRT subtitle file.
+- `Ctrl+M`: search for metadata and artwork.
+- `Ctrl+Shift+M`: replace artwork only.
+- `Ctrl+Shift+S`: export an MP4 file.
+
+Language fields accept two-letter or three-letter codes such as `en` / `eng`,
+`de` / `deu`, and `fr` / `fra`. An empty value is stored as `und`. The checkboxes
+in the **Use** column control which tracks are exported.
+
+## Metadata providers
+
+Apple TV and iTunes Store work without configuration. TheMovieDB and TheTVDB
+require personal credentials supplied through environment variables:
 
 ```sh
-cargo run --locked
-cargo run --locked -- /percorso/al/video.mkv
+export TMDB_API_TOKEN="your-v4-read-token"
+# Alternatively: export TMDB_API_KEY="your-v3-key"
+export TVDB_API_KEY="your-api-key"
+# Required only for accounts that use one: export TVDB_PIN="your-subscriber-pin"
+reelmux
 ```
 
-Scorciatoie: `Ctrl+O` apre un file, `Ctrl+I` aggiunge un SRT,
-`Ctrl+M` cerca i metadati, `Ctrl+Shift+M` cambia soltanto la locandina,
-`Ctrl+Shift+S` esporta un MP4.
-
-Per le lingue sono accettati codici a due o tre lettere: `it` / `ita`,
-`en` / `eng`, `de` / `deu` / `ger`. Un valore vuoto equivale a `und`.
-Le caselle nella colonna **Usa** determinano le tracce da esportare;
-l'evidenziazione delle righe nella tabella non cambia questa scelta.
-
-## Provider dei metadati
-
-Apple TV e iTunes Store non richiedono configurazione. TheMovieDB e TheTVDB
-richiedono credenziali personali, che l'applicazione legge dall'ambiente:
-
-```sh
-export TMDB_API_TOKEN="token-di-lettura-v4"
-# In alternativa al token: export TMDB_API_KEY="chiave-v3"
-export TVDB_API_KEY="chiave-api"
-# Solo per gli account che lo richiedono: export TVDB_PIN="pin-abbonato"
-cargo run --locked
-```
-
-Le chiavi comprese nel sorgente di Subler non vengono riutilizzate. La finestra
-**Cerca online** consente di scegliere provider, film o serie, lingua, paese,
-stagione ed episodio. Dopo la selezione mostra le locandine disponibili e scarica
-in alta risoluzione soltanto quella scelta. Il pulsante **Cambia locandina** usa la
-stessa ricerca senza modificare gli altri metadati. La disponibilità dei cataloghi
-e il numero di immagini variano per paese e provider.
+The **Search online** window lets you choose a provider, media type, language,
+country, season, and episode. ReelMux downloads the full-size version of the
+artwork only after you select it. Available titles and images vary by provider
+and country.
 
 This product uses the TMDB API but is not endorsed or certified by TMDB.
-Per i risultati TheTVDB, i metadati sono forniti da
-[TheTVDB](https://thetvdb.com/); valuta di contribuire le informazioni mancanti
-o di sottoscrivere un abbonamento. L'uso delle API resta soggetto ai termini dei
-rispettivi provider.
+Metadata returned by TheTVDB is provided by [TheTVDB](https://thetvdb.com/).
+API use remains subject to each provider's terms.
 
-## Prova con file sintetici
+## Command line
 
-```sh
-python scripts/create_demo.py
-cargo run --locked -- artifacts/demo/Viaggio-notturno.mkv
-```
-
-Il generatore crea un video di prova e un SRT, senza utilizzare file personali.
-Il sottotitolo può essere aggiunto dalla GUI o trascinato nella finestra aperta.
-
-## Riga di comando
+ReelMux also provides commands for inspection, export, and metadata lookup:
 
 ```sh
-cargo run --locked -- inspect video.mkv
-cargo run --locked -- export video.mkv risultato.mp4 --title "Titolo" --subtitle italiano.srt --language ita
-cargo run --locked -- export video.mkv risultato.mp4 --exclude 2 --aac
-cargo run --locked --no-default-features -- metadata "Dune" --provider apple-tv
-cargo run --locked --no-default-features -- metadata "Dune" --provider apple-tv --select 1 --artwork dune.jpg
-cargo run --locked --no-default-features -- metadata "Breaking Bad" --provider itunes --tv --season 5 --episode 1
+reelmux inspect video.mkv
+reelmux export video.mkv output.mp4 --title "Title" --subtitle english.srt --language eng
+reelmux export video.mkv output.mp4 --exclude 2 --aac
+reelmux metadata "Dune" --provider apple-tv
+reelmux metadata "Dune" --provider apple-tv --select 1 --artwork dune.jpg
+reelmux metadata "Breaking Bad" --provider itunes --tv --season 5 --episode 1
 ```
 
-`--exclude` usa l'indice originale della traccia, visibile nell'output di `inspect`.
-`--aac` converte tutte le tracce audio incluse. `--subtitle` è ripetibile.
-Per compilare soltanto la CLI e il motore, senza dipendenze GTK:
+`--exclude` uses the original track index shown by `inspect`. `--aac` converts
+every included audio track. `--subtitle` can be supplied more than once.
 
-```sh
-cargo build --locked --no-default-features
-```
+## Current limitations
 
-## Verifiche
+- Chapter editing and batch queues are not available yet.
+- Bitmap subtitles require external OCR. ASS and SSA styling may be lost when converted to MP4 text.
+- Proprietary MP4 atoms, track relationships, and all HDR or Dolby Vision details may not be preserved.
+- Video stream copy currently supports H.264, HEVC, AV1, MPEG-4, and VP9.
+- Audio formats other than AAC, AC3, EAC3, ALAC, and MP3 are offered as AAC conversions.
+- Unsaved changes remain in memory until an export completes.
 
-```sh
-make check
-```
+## License
 
-Il comando esegue formattazione, Clippy e tutti i test automatici. `make build`
-crea il binario ottimizzato. Con nFPM installato, `make dist` prepara un archivio
-Linux e i pacchetti Debian, RPM e Arch Linux.
-
-`make appimage` scarica le versioni fissate di linuxdeploy e del plugin GTK4,
-ne verifica i checksum e genera l'AppImage. `make packages` crea tutti i formati.
-FFmpeg resta una dipendenza esterna anche per l'AppImage.
-
-I test d'integrazione richiedono FFmpeg. Generano file locali temporanei e verificano
-metadati, capitoli, lingue, sottotitoli forzati, esclusione delle tracce, conversione
-AAC, annullamento e rifiuto della sovrascrittura. La copia audio/video viene
-confrontata tramite hash SHA-256 dei pacchetti compressi. Il motore può essere
-verificato senza un display e con `--no-default-features`.
-
-Per verificare anche i controlli GTK in una sessione grafica:
-
-```sh
-cargo test --locked --bin reelmux gui_roundtrip -- --ignored --test-threads=1
-```
-
-Questo test apre una finestra con un video sintetico, modifica titolo, lingua,
-inclusione e flag dei sottotitoli, quindi esporta e controlla il risultato.
-Richiede anche Python 3. Impostando `REELMUX_TEST_SCREENSHOT` a un percorso PNG
-si può acquisire la sola finestra del test, senza catturare il resto del desktop.
-
-## Release
-
-Le release partono da un tag semantico `vMAJOR.MINOR.PATCH` raggiungibile da
-`main`. Il comando interattivo propone la patch successiva, oppure `v0.1.0`
-quando non esistono ancora tag:
-
-```sh
-make release
-```
-
-La working tree deve essere pulita e `main` deve coincidere con `origin/main`.
-Il comando accetta la versione proposta o una versione diversa, aggiorna
-`Cargo.toml` e `Cargo.lock`, esegue `make check`, crea il commit di versione e un
-tag annotato, quindi pubblica branch e tag con un unico push atomico.
-
-Il workflow GitHub Actions verifica nuovamente tag, branch e versione, compila
-su runner Ubuntu 24.04 nativi per Linux amd64 e arm64 e pubblica nella GitHub
-Release gli archivi `.tar.gz`, i pacchetti `.deb`, `.rpm`, `.pkg.tar.zst`, le
-AppImage e i checksum SHA-256 per entrambe le architetture.
-
-## Limiti del prototipo
-
-- Nessuna modifica dei capitoli o coda batch.
-- Apple TV usa l'endpoint pubblico consultato da Subler, che non ha una specifica
-  pubblica stabile. iTunes Store può non restituire film in alcuni cataloghi.
-- La mappatura copre i principali campi offerti dai quattro provider. I rating
-  territoriali complessi richiedono altro lavoro.
-- I sottotitoli bitmap richiedono OCR esterno. Gli stili ASS/SSA possono essere persi
-  nella conversione in testo MP4.
-- Nessuna promessa di conservazione completa degli atom MP4 proprietari, dei legami
-  tra tracce o dei dettagli HDR/Dolby Vision. Servono ulteriori verifiche dedicate.
-- FFmpeg copia i metadati che riconosce; i campi esposti nella GUI sono scritti
-  esplicitamente. Modificare i tag richiede la riscrittura del contenitore.
-- I codec video previsti per la copia sono H.264, HEVC, AV1, MPEG-4 e VP9.
-  Una traccia non supportata resta visibile ma viene esclusa. L'audio diverso da
-  AAC, AC3, EAC3, ALAC e MP3 viene proposto per la conversione AAC.
-- Le modifiche non esportate rimangono solo in memoria. La chiusura o l'apertura di
-  un altro documento richiede conferma se ci sono modifiche pendenti.
-- La verifica dopo l'esportazione controlla la leggibilità e il numero di tracce;
-  non sostituisce una validazione completa su ogni lettore o dispositivo.
-
-## Struttura
-
-- `src/media.rs`: modello del documento, operazioni FFmpeg/ffprobe e atom MP4.
-- `src/metadata.rs`: client e mappature per i quattro provider di metadati.
-- `src/language.rs`: normalizzazione dei codici lingua.
-- `src/ui.rs`: interfaccia GTK4 e comunicazione con i worker.
-- `src/main.rs`: avvio GUI e CLI.
-- `data/`: stile, icona e tabella delle lingue.
-- `tests/`: test sui file multimediali.
-
-Licenza GPL-2.0-only. Crediti e provenienza del materiale recuperato da Subler
-in [THIRD_PARTY.md](THIRD_PARTY.md).
+ReelMux is available under the [MIT License](LICENSE). See
+[THIRD_PARTY.md](THIRD_PARTY.md) for attribution and third-party notices.

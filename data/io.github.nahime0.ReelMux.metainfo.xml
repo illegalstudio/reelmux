@@ -4,7 +4,7 @@
   <name>ReelMux</name>
   <summary>Edit MP4 tracks, subtitles, metadata and artwork</summary>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>GPL-2.0-only</project_license>
+  <project_license>MIT</project_license>
   <description>
     <p>
       ReelMux is an MP4 editor for Linux. It can remux video and audio tracks,
