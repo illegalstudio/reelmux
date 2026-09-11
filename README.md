@@ -160,8 +160,9 @@ Il comando accetta la versione proposta o una versione diversa, aggiorna
 tag annotato, quindi pubblica branch e tag con un unico push atomico.
 
 Il workflow GitHub Actions verifica nuovamente tag, branch e versione, compila
-su Ubuntu 24.04 per Linux amd64 e pubblica nella GitHub Release l'archivio
-`.tar.gz`, il pacchetto `.deb` e i checksum SHA-256.
+su runner Ubuntu 24.04 nativi per Linux amd64 e arm64 e pubblica nella GitHub
+Release gli archivi `.tar.gz`, i pacchetti `.deb`, `.rpm`, `.pkg.tar.zst`, le
+AppImage e i checksum SHA-256 per entrambe le architetture.
 
 ## Limiti del prototipo
 

@@ -17,9 +17,21 @@ env:
 
 jobs:
   build:
-    name: Check and build Linux amd64
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    name: Check and build Linux ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            arch: amd64
+            nfpm_arch: x86_64
+            nfpm_sha256: 0660ca602b2d2d2ae4781a06c692b3eeb9d437ffea05b831d76e41f4a3188783
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+            nfpm_arch: arm64
+            nfpm_sha256: 1c0f5f2999b9a974bfb04fdb0cc3306096de530ac5dbb25d739cc5f5219c919c
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -51,8 +63,15 @@ jobs:
             build-essential \
             desktop-file-utils \
             ffmpeg \
+            appstream \
+            file \
             libgtk-4-dev \
-            pkg-config
+            librsvg2-dev \
+            patch \
+            patchelf \
+            pkg-config \
+            rpm \
+            zstd
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -73,10 +92,29 @@ jobs:
       - name: Check
         run: make check
 
+      - name: Install nFPM
+        env:
+          NFPM_ARCH: ${{ matrix.nfpm_arch }}
+          NFPM_SHA256: ${{ matrix.nfpm_sha256 }}
+        run: |
+          set -euo pipefail
+          archive="nfpm_2.47.0_Linux_${NFPM_ARCH}.tar.gz"
+          curl -fsSL "https://github.com/goreleaser/nfpm/releases/download/v2.47.0/${archive}" \
+            -o "$RUNNER_TEMP/$archive"
+          printf '%s  %s\n' "$NFPM_SHA256" "$RUNNER_TEMP/$archive" \
+            | sha256sum --check --status
+          mkdir -p "$RUNNER_TEMP/nfpm"
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/nfpm" nfpm
+          echo "$RUNNER_TEMP/nfpm" >> "$GITHUB_PATH"
+
       - name: Build packages
-        run: make dist VERSION="$VERSION" ARCH=amd64
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: make packages VERSION="$VERSION" ARCH="$ARCH"
 
       - name: Verify packages
+        env:
+          ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
           expected="reelmux $VERSION"
@@ -86,21 +124,52 @@ jobs:
             exit 1
           fi
 
+          case "$ARCH" in
+            amd64)
+              deb_arch=amd64
+              rpm_arch=x86_64
+              archlinux_arch=x86_64
+              ;;
+            arm64)
+              deb_arch=arm64
+              rpm_arch=aarch64
+              archlinux_arch=aarch64
+              ;;
+          esac
+
           desktop-file-validate data/io.github.nahime0.ReelMux.desktop
-          tar -tzf "dist/reelmux_${VERSION}_linux_amd64.tar.gz" >/dev/null
-          dpkg-deb --info "dist/reelmux_${VERSION}_linux_amd64.deb" >/dev/null
-          dpkg-deb --contents "dist/reelmux_${VERSION}_linux_amd64.deb" >/dev/null
+          appstreamcli validate --no-net data/io.github.nahime0.ReelMux.metainfo.xml
+          tar -tzf "dist/reelmux_${VERSION}_linux_${ARCH}.tar.gz" >/dev/null
+          dpkg-deb --info "dist/reelmux_${VERSION}_linux_${ARCH}.deb" >/dev/null
+          dpkg-deb --contents "dist/reelmux_${VERSION}_linux_${ARCH}.deb" >/dev/null
+          test "$(dpkg-deb -f "dist/reelmux_${VERSION}_linux_${ARCH}.deb" Architecture)" = "$deb_arch"
+          rpm -qip "dist/reelmux_${VERSION}_linux_${ARCH}.rpm" >/dev/null
+          rpm -qpR "dist/reelmux_${VERSION}_linux_${ARCH}.rpm" >/dev/null
+          test "$(rpm -qp --qf '%{ARCH}' "dist/reelmux_${VERSION}_linux_${ARCH}.rpm")" = "$rpm_arch"
+          tar -tf "dist/reelmux_${VERSION}_linux_${ARCH}.pkg.tar.zst" >/dev/null
+          tar -xOf "dist/reelmux_${VERSION}_linux_${ARCH}.pkg.tar.zst" .PKGINFO \
+            | grep -Fx "arch = $archlinux_arch"
+          APPIMAGE_EXTRACT_AND_RUN=1 \
+            "dist/reelmux_${VERSION}_linux_${ARCH}.AppImage" --version \
+            | grep -Fx "$expected"
 
       - name: Checksums
+        env:
+          ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
           cd dist
-          sha256sum reelmux_* > "reelmux_${VERSION}_checksums.txt"
-          cat "reelmux_${VERSION}_checksums.txt"
+          sha256sum "reelmux_${VERSION}_linux_${ARCH}.tar.gz" \
+            "reelmux_${VERSION}_linux_${ARCH}.deb" \
+            "reelmux_${VERSION}_linux_${ARCH}.rpm" \
+            "reelmux_${VERSION}_linux_${ARCH}.pkg.tar.zst" \
+            "reelmux_${VERSION}_linux_${ARCH}.AppImage" \
+            > "reelmux_${VERSION}_linux_${ARCH}_checksums.txt"
+          cat "reelmux_${VERSION}_linux_${ARCH}_checksums.txt"
 
       - uses: actions/upload-artifact@v7
         with:
-          name: reelmux-${{ github.ref_name }}-linux-amd64
+          name: reelmux-${{ github.ref_name }}-linux-${{ matrix.arch }}
           path: dist/*
           if-no-files-found: error
           retention-days: 7
@@ -115,7 +184,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v7
         with:
-          name: reelmux-${{ github.ref_name }}-linux-amd64
+          pattern: reelmux-${{ github.ref_name }}-linux-*
+          merge-multiple: true
           path: dist
 
       - name: Publish release
