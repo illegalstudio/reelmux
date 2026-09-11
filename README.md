@@ -123,6 +123,10 @@ Il comando esegue formattazione, Clippy e tutti i test automatici. `make build`
 crea il binario ottimizzato. Con nFPM installato, `make dist` prepara un archivio
 Linux e i pacchetti Debian, RPM e Arch Linux.
 
+`make appimage` scarica le versioni fissate di linuxdeploy e del plugin GTK4,
+ne verifica i checksum e genera l'AppImage. `make packages` crea tutti i formati.
+FFmpeg resta una dipendenza esterna anche per l'AppImage.
+
 I test d'integrazione richiedono FFmpeg. Generano file locali temporanei e verificano
 metadati, capitoli, lingue, sottotitoli forzati, esclusione delle tracce, conversione
 AAC, annullamento e rifiuto della sovrascrittura. La copia audio/video viene

@@ -47,9 +47,18 @@ del provider selezionato.
 
 Le dipendenze Rust, inclusi `ureq`, `url` e `mp4ameta`, sono fissate in
 `Cargo.lock` e conservano le rispettive licenze.
-GTK4 viene collegato alle librerie di sistema. FFmpeg e ffprobe vengono eseguiti
-come programmi esterni e non sono distribuiti in questo repository.
-Le opzioni di build e le licenze dei pacchetti FFmpeg dipendono dalla distribuzione.
+GTK4 viene collegato alle librerie di sistema nei pacchetti nativi. Le AppImage
+includono GTK4 e le dipendenze dinamiche raccolte da linuxdeploy, soggette alle
+rispettive licenze. FFmpeg e ffprobe vengono eseguiti come programmi esterni e
+non sono inclusi nei pacchetti. Le opzioni di build e le licenze dei pacchetti
+FFmpeg dipendono dalla distribuzione.
+
+Le AppImage vengono create con linuxdeploy e linuxdeploy-plugin-gtk, scaricati
+durante la build da versioni fissate e verificati tramite SHA-256:
+
+- linuxdeploy: <https://github.com/linuxdeploy/linuxdeploy>
+- linuxdeploy-plugin-gtk: <https://github.com/linuxdeploy/linuxdeploy-plugin-gtk>
+- AppImage type 2 runtime: <https://github.com/AppImage/type2-runtime>
 
 L'icona SVG e il foglio di stile di ReelMux sono nuovi e coperti dalla licenza
 del progetto.

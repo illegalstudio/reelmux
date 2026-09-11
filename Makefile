@@ -2,7 +2,7 @@ CARGO ?= cargo
 VERSION ?= $(shell sed -n -E '0,/^version = "/s/^version = "([^"]+)".*/\1/p' Cargo.toml)
 ARCH ?= $(shell uname -m | sed -e 's/x86_64/amd64/' -e 's/aarch64/arm64/')
 
-.PHONY: all build test lint check dist release clean
+.PHONY: all build test lint check dist appimage packages release clean
 
 all: build
 
@@ -20,6 +20,11 @@ check: lint test
 
 dist: build
 	scripts/package.sh target/release/reelmux $(VERSION) $(ARCH)
+
+appimage: build
+	scripts/package-appimage.sh target/release/reelmux $(VERSION) $(ARCH)
+
+packages: dist appimage
 
 release:
 	@scripts/release.sh

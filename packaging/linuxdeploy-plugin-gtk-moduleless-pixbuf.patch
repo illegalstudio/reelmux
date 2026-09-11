@@ -1,0 +1,10 @@
+--- linuxdeploy-plugin-gtk.sh
++++ linuxdeploy-plugin-gtk.sh
+@@ -318,0 +319 @@
++if [ -d "$gdk_pixbuf_binarydir" ]; then
+@@ -332,0 +334,3 @@
++else
++    echo "No external GDK Pixbuf loader modules found"
++fi
+@@ -369,0 +374 @@
++    [ -d "$directory" ] || continue
