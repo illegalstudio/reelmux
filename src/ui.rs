@@ -705,7 +705,6 @@ impl Ui {
         logo.add_css_class("brand-icon");
         brand.append(&logo);
         brand.append(&label("ReelMux", "heading"));
-        brand.append(&label("PROTOTIPO", "badge"));
         header.set_title_widget(Some(&brand));
         let open = gtk::Button::with_label("Apri file");
         open.set_tooltip_text(Some("Apri un file (Ctrl+O)"));
