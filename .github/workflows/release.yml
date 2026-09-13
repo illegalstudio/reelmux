@@ -146,8 +146,9 @@ jobs:
           rpm -qip "dist/reelmux_${VERSION}_linux_${ARCH}.rpm" >/dev/null
           rpm -qpR "dist/reelmux_${VERSION}_linux_${ARCH}.rpm" >/dev/null
           test "$(rpm -qp --qf '%{ARCH}' "dist/reelmux_${VERSION}_linux_${ARCH}.rpm")" = "$rpm_arch"
-          tar -tf "dist/reelmux_${VERSION}_linux_${ARCH}.pkg.tar.zst" >/dev/null
-          tar -xOf "dist/reelmux_${VERSION}_linux_${ARCH}.pkg.tar.zst" .PKGINFO \
+          archlinux_package="dist/reelmux-${VERSION}-1-${archlinux_arch}.pkg.tar.zst"
+          tar -tf "$archlinux_package" >/dev/null
+          tar -xOf "$archlinux_package" .PKGINFO \
             | grep -Fx "arch = $archlinux_arch"
           APPIMAGE_EXTRACT_AND_RUN=1 \
             "dist/reelmux_${VERSION}_linux_${ARCH}.AppImage" --version \
@@ -158,11 +159,15 @@ jobs:
           ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
+          case "$ARCH" in
+            amd64) archlinux_arch=x86_64 ;;
+            arm64) archlinux_arch=aarch64 ;;
+          esac
           cd dist
           sha256sum "reelmux_${VERSION}_linux_${ARCH}.tar.gz" \
             "reelmux_${VERSION}_linux_${ARCH}.deb" \
             "reelmux_${VERSION}_linux_${ARCH}.rpm" \
-            "reelmux_${VERSION}_linux_${ARCH}.pkg.tar.zst" \
+            "reelmux-${VERSION}-1-${archlinux_arch}.pkg.tar.zst" \
             "reelmux_${VERSION}_linux_${ARCH}.AppImage" \
             > "reelmux_${VERSION}_linux_${ARCH}_checksums.txt"
           cat "reelmux_${VERSION}_linux_${ARCH}_checksums.txt"

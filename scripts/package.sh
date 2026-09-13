@@ -13,7 +13,12 @@ if [[ ! "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; th
 fi
 
 case "$arch" in
-  amd64|arm64) ;;
+  amd64)
+    archlinux_arch="x86_64"
+    ;;
+  arm64)
+    archlinux_arch="aarch64"
+    ;;
   *)
     echo "error: arch must be amd64 or arm64 (got '$arch')" >&2
     exit 1
@@ -60,7 +65,7 @@ for format in deb rpm archlinux; do
   case "$format" in
     deb) output="dist/${base}.deb" ;;
     rpm) output="dist/${base}.rpm" ;;
-    archlinux) output="dist/${base}.pkg.tar.zst" ;;
+    archlinux) output="dist/reelmux-${version}-1-${archlinux_arch}.pkg.tar.zst" ;;
   esac
   "$NFPM" package \
     --config packaging/nfpm.yaml \
