@@ -1,6 +1,6 @@
 [package]
 name = "reelmux"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 rust-version = "1.92"
 description = "A native MP4 track, metadata, subtitle and artwork editor for Linux"
